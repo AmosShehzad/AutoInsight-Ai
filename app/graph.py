@@ -1,16 +1,29 @@
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+import sqlite3
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+
 from app.schemas.state import GraphState
 from app.nodes.file_loader import load_file_node
 from app.nodes.validation import validate_data_node
 from app.nodes.cleaning import clean_data_node
 from app.nodes.profiling import profile_data_node
 
+DB_PATH = "checkpoints.sqlite"
 
-def build_graph():
+
+def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None):
     """
-    Builds and compiles the LangGraph pipeline.
-    Today: purely sequential — File Loader -> Validation -> Cleaning -> Profiling.
-    Later days will add parallel branches (Day 6) and conditional loops (Day 8).
+    Builds and compiles the LangGraph pipeline WITH checkpointing.
+
+    interrupt_after: optional list of node names to pause after —
+    used only for the crash-simulation demo, not real usage.
     """
     graph = StateGraph(GraphState)
 
@@ -26,13 +39,17 @@ def build_graph():
     graph.add_edge("cleaning", "profiling")
     graph.add_edge("profiling", END)
 
-    return graph.compile()
+    conn = sqlite3.connect(db_path, check_same_thread=False)
+    serde = JsonPlusSerializer(pickle_fallback=True)
+    checkpointer = SqliteSaver(conn, serde=serde)
 
+    return graph.compile(checkpointer=checkpointer, interrupt_after=interrupt_after)
 
 if __name__ == "__main__":
-    # Quick manual run — replace with a real file path to test
     app_graph = build_graph()
-    result = app_graph.invoke({"file_path": "sample_data/clean_sample.csv"})
-    print("Validation report:", result["validation_report"])
-    print("Cleaning report:", result["cleaning_report"])
+    config = {"configurable": {"thread_id": "demo-run-1"}}
+    result = app_graph.invoke(
+        {"file_path": "sample_data/clean_sample.csv"},
+        config=config,
+    )
     print("Profile:", result["profile"])

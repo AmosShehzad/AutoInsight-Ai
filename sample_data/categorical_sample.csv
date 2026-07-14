@@ -1,0 +1,11 @@
+customer_id,region,membership_tier,satisfaction_rating
+C001,North,Gold,4
+C002,South,Silver,3
+C003,North,Bronze,5
+C004,East,Gold,4
+C005,West,Silver,2
+C006,South,Bronze,3
+C007,North,Gold,5
+C008,East,Silver,4
+C009,West,Bronze,3
+C010,South,Gold,5

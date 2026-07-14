@@ -1,10 +1,7 @@
-from app.graph import build_graph
-
-g = build_graph()
-
-result = g.invoke({"file_path": "sample_data/clean_sample.csv"})
-print(result["validation_report"]["health_score"])   # should be 100.0
-
-result2 = g.invoke({"file_path": "sample_data/messy_sample.csv"})
-print(result2["cleaning_report"])   # should show duplicates_removed, missing_value_handling
-print(result2["profile"]["numeric_stats"])
+import pandas as pd
+df = pd.read_csv("sample_data/timeseries_sample.csv")
+# manually test the new function
+from app.nodes.file_loader import _parse_date_columns
+df2 = _parse_date_columns(df)
+print(df2.dtypes)  # date should now show datetime64[ns]
+exit()

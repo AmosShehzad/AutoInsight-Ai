@@ -12,8 +12,10 @@ def profile_data_node(state: GraphState) -> GraphState:
     df: pd.DataFrame = state["cleaned_dataframe"]
 
     numeric_cols = df.select_dtypes(include="number").columns.tolist()
-    categorical_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
-    datetime_cols = df.select_dtypes(include=["datetime64"]).columns.tolist()
+    categorical_cols = df.select_dtypes(include=["object", "string", "category"]).columns.tolist()
+    datetime_cols = [
+        col for col in df.columns if pd.api.types.is_datetime64_any_dtype(df[col])
+    ]
 
     numeric_stats = {}
     for col in numeric_cols:

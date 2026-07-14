@@ -17,7 +17,10 @@ def test_clean_dataset_end_to_end(graph, tmp_path):
         "salary": [75000, 92000, 68000],
     }).to_csv(file_path, index=False)
 
-    result = graph.invoke({"file_path": str(file_path)})
+    result = graph.invoke(
+        {"file_path": str(file_path)},
+        config={"configurable": {"thread_id": "test-e2e-clean"}},
+    )
 
     assert result["validation_report"]["health_score"] == 100.0
     assert result["cleaning_report"]["duplicates_removed"] == 0
@@ -35,7 +38,10 @@ def test_messy_dataset_end_to_end(graph, tmp_path):
     })
     df.to_csv(file_path, index=False)
 
-    result = graph.invoke({"file_path": str(file_path)})
+    result = graph.invoke(
+        {"file_path": str(file_path)},
+        config={"configurable": {"thread_id": "test-e2e-messy"}},
+    )
 
     # validation should catch the issues before cleaning fixes them
     assert result["validation_report"]["missing_cells"] >= 1
@@ -56,4 +62,7 @@ def test_empty_dataset_raises_error(graph, tmp_path):
     file_path.write_text("name,age,city,salary\n")
 
     with pytest.raises(FileLoadError):
-        graph.invoke({"file_path": str(file_path)})
+        graph.invoke(
+            {"file_path": str(file_path)},
+            config={"configurable": {"thread_id": "test-e2e-empty"}},
+        )

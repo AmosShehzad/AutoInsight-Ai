@@ -1,14 +1,6 @@
 import os
 import sqlite3
 import pytest
-from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.sqlite import SqliteSaver
-
-from app.schemas.state import GraphState
-from app.nodes.file_loader import load_file_node
-from app.nodes.validation import validate_data_node
-from app.nodes.cleaning import clean_data_node
-from app.nodes.profiling import profile_data_node
 from app.graph import build_graph
 
 
@@ -45,24 +37,15 @@ def test_resume_skips_completed_nodes(temp_db_path, tmp_path):
     thread_id = "test-thread-resume"
     config = {"configurable": {"thread_id": thread_id}}
 
-    # Run a PARTIAL graph (only file_loader + validation) sharing the same DB
-    partial = StateGraph(GraphState)
-    partial.add_node("file_loader", load_file_node)
-    partial.add_node("validation", validate_data_node)
-    partial.set_entry_point("file_loader")
-    partial.add_edge("file_loader", "validation")
-    partial.add_edge("validation", END)
-
-    conn = sqlite3.connect(temp_db_path, check_same_thread=False)
-    partial_compiled = partial.compile(checkpointer=SqliteSaver(conn))
-    partial_result = partial_compiled.invoke({"file_path": str(file_path)}, config=config)
+    # Run the full graph but interrupt right after validation, then resume.
+    interrupted_graph = build_graph(db_path=temp_db_path, interrupt_after=["validation"])
+    partial_result = interrupted_graph.invoke({"file_path": str(file_path)}, config=config)
 
     assert "validation_report" in partial_result
-    assert "cleaning_report" not in partial_result  # cleaning hasn't run yet
+    assert "cleaning_report" not in partial_result  # cleaning has not run yet
 
-    # Now resume with the FULL graph and the SAME thread_id
-    full_graph = build_graph(db_path=temp_db_path)
-    resumed_result = full_graph.invoke(None, config=config)
+    resumed_graph = build_graph(db_path=temp_db_path)
+    resumed_result = resumed_graph.invoke(None, config=config)
 
     # it should have completed the rest without needing file_path again
     assert "cleaning_report" in resumed_result

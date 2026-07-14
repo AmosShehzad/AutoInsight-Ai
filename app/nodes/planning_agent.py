@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
@@ -63,11 +64,22 @@ PLANNING_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 
-def planning_agent_node(state: GraphState) -> GraphState:
+def _build_chain():
+    """
+    Small helper that builds the prompt -> structured-LLM chain.
+    Pulled into its own function so retry logic can call it
+    fresh each attempt without duplicating setup code.
+    """
+    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.2)
+    structured_llm = llm.with_structured_output(AnalysisPlan)
+    return PLANNING_PROMPT | structured_llm
+
+
+def planning_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     """
     LangGraph node (REAL AGENT — LLM-powered).
-    Reads the dataset profile from state, asks the LLM to reason about it,
-    and writes a structured AnalysisPlan back into state as a plain dict.
+    Now with retry logic: if the LLM call or validation fails, we retry
+    a couple of times with increasing pauses before giving up.
     """
     profile = state.get("profile")
     if not profile:
@@ -80,33 +92,26 @@ def planning_agent_node(state: GraphState) -> GraphState:
             "GROQ_API_KEY not set. Add it to your .env file before running the Planning Agent."
         )
 
-    # Set up the LLM. temperature=0.2 keeps output focused and consistent
-    # rather than creative/random — we want reliable planning, not variety.
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile",
-        temperature=0.2,
+    chain = _build_chain()
+    profile_json = json.dumps(profile, indent=2)
+    last_error = None
+
+    for attempt in range(1, max_retries + 2):  # max_retries=2 -> 3 total attempts
+        try:
+            plan_result: AnalysisPlan = chain.invoke({"profile": profile_json})
+            plan_dict = plan_result.model_dump()
+
+            # Guardrail check remains intact here
+            plan_dict = _enforce_profile_guardrails(plan_dict, profile)
+            plan_dict["_meta"] = {"attempts": attempt}
+
+            return {**state, "plan": plan_dict}
+        except Exception as e:
+            last_error = e
+            if attempt <= max_retries:
+                time.sleep(1.5 * attempt)
+                continue
+
+    raise PlanningAgentError(
+        f"Planning Agent failed after {max_retries + 1} attempts. Last error: {last_error}"
     )
-
-    # .with_structured_output() is the key LangChain feature here:
-    # it forces the LLM's response to match our AnalysisPlan Pydantic schema,
-    # and automatically parses the JSON reply into a validated AnalysisPlan object.
-    structured_llm = llm.with_structured_output(AnalysisPlan)
-
-    # Chain the prompt template into the structured LLM using LCEL (LangChain
-    # Expression Language) — the "|" pipe operator. This means:
-    # "take the prompt, fill in the variables, send it to the LLM, parse the result."
-    chain = PLANNING_PROMPT | structured_llm
-
-    try:
-        plan_result: AnalysisPlan = chain.invoke({
-            "profile": json.dumps(profile, indent=2)
-        })
-    except Exception as e:
-        raise PlanningAgentError(f"Planning Agent failed to produce a valid plan: {e}")
-
-    # Convert the validated Pydantic object into a plain dict before
-    # storing in state — safer for LangGraph's checkpoint serialization.
-    plan_dict = plan_result.model_dump()
-    plan_dict = _enforce_profile_guardrails(plan_dict, profile)
-
-    return {**state, "plan": plan_dict}

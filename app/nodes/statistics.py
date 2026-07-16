@@ -89,7 +89,7 @@ def _value_counts_analysis(df: pd.DataFrame, profile: dict) -> dict:
 
 # ---------------------------------------------------------------------------
 # THE DISPATCH TABLE: maps a plan's analysis NAME (string) to the function
-# that performs it. Core pattern for today — look up by name, call it.
+# that performs it.
 # ---------------------------------------------------------------------------
 ANALYSIS_DISPATCH = {
     "descriptive_stats": _descriptive_stats,
@@ -100,11 +100,10 @@ ANALYSIS_DISPATCH = {
 }
 
 
-def statistics_node(state: GraphState) -> GraphState:
+def statistics_node(state: GraphState) -> dict:
     """
     LangGraph node (PIPELINE NODE — deterministic, no LLM call).
-    Reads state['plan']['analyses'] and executes each requested analysis
-    using the dispatch table above. Unsupported names are recorded, not crashed on.
+    Reads state['plan']['analyses'] and executes each requested analysis.
     """
     df = state.get("cleaned_dataframe")
     profile = state.get("profile")
@@ -125,16 +124,12 @@ def statistics_node(state: GraphState) -> GraphState:
         analysis_fn = ANALYSIS_DISPATCH.get(analysis_name)
 
         if analysis_fn is None:
-            # FALLBACK LOGIC: Planning Agent asked for something unsupported.
-            # Record it clearly instead of crashing the pipeline.
             unsupported.append(analysis_name)
             continue
 
         try:
             results[analysis_name] = analysis_fn(df, profile)
         except Exception as e:
-            # Even a supported analysis can fail unexpectedly on weird data —
-            # record the failure per-analysis, don't kill the whole node.
             results[analysis_name] = {"error": f"Analysis failed: {e}"}
 
     statistics_output = {
@@ -143,4 +138,5 @@ def statistics_node(state: GraphState) -> GraphState:
         "unsupported_analyses": unsupported,
     }
 
-    return {**state, "statistics": statistics_output}
+    # Returns ONLY the key updated by this node
+    return {"statistics": statistics_output}

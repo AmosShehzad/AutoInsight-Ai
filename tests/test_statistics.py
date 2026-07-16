@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 import pandas as pd
 import pytest
 from app.nodes.statistics import statistics_node, StatisticsNodeError

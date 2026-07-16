@@ -15,7 +15,8 @@ from app.nodes.validation import validate_data_node
 from app.nodes.cleaning import clean_data_node
 from app.nodes.profiling import profile_data_node
 from app.nodes.planning_agent import planning_agent_node
-from app.nodes.statistics import statistics_node   # NEW import
+from app.nodes.statistics import statistics_node
+from app.nodes.visualization import visualization_node   # NEW import
 
 DB_PATH = "checkpoints.sqlite"
 
@@ -28,7 +29,8 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_node("cleaning", clean_data_node)
     graph.add_node("profiling", profile_data_node)
     graph.add_node("planning_agent", planning_agent_node)
-    graph.add_node("statistics", statistics_node)   # NEW
+    graph.add_node("statistics", statistics_node)
+    graph.add_node("visualization", visualization_node)   # NEW
 
     graph.set_entry_point("file_loader")
 
@@ -36,8 +38,16 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_edge("validation", "cleaning")
     graph.add_edge("cleaning", "profiling")
     graph.add_edge("profiling", "planning_agent")
-    graph.add_edge("planning_agent", "statistics")   # NEW — was planning_agent -> END
-    graph.add_edge("statistics", END)                # NEW — temporary until Day 6
+
+    # FAN-OUT: planning_agent has TWO outgoing edges now, instead of one.
+    # LangGraph sees this and runs "statistics" and "visualization" IN PARALLEL.
+    graph.add_edge("planning_agent", "statistics")
+    graph.add_edge("planning_agent", "visualization")
+
+    # FAN-IN: both parallel branches point to the SAME next step.
+    # LangGraph automatically WAITS for both to finish before continuing.
+    graph.add_edge("statistics", END)          # temporary until Day 8 (Critic Agent)
+    graph.add_edge("visualization", END)       # temporary until Day 8 (Critic Agent)
 
     conn = sqlite3.connect(db_path, check_same_thread=False)
     serde = JsonPlusSerializer(pickle_fallback=True)
@@ -48,10 +58,11 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
 
 if __name__ == "__main__":
     app_graph = build_graph()
-    config = {"configurable": {"thread_id": "demo-run-day5"}}
+    config = {"configurable": {"thread_id": "demo-run-day6"}}
     result = app_graph.invoke(
         {"file_path": "sample_data/timeseries_sample.csv"},
         config=config,
     )
     print("Plan:", result["plan"])
     print("\nStatistics:", result["statistics"])
+    print("\nVisualizations:", result["visualizations"])

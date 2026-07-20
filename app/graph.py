@@ -17,9 +17,32 @@ from app.nodes.profiling import profile_data_node
 from app.nodes.planning_agent import planning_agent_node
 from app.nodes.statistics import statistics_node
 from app.nodes.visualization import visualization_node
-from app.nodes.insight_agent import insight_agent_node   # NEW import
+from app.nodes.insight_agent import insight_agent_node
+from app.nodes.critic_agent import critic_agent_node   # Day 8: Critic Agent import
 
 DB_PATH = "checkpoints.sqlite"
+
+
+def _route_after_critic(state: GraphState) -> str:
+    """
+    Conditional edge router. Reads critic_feedback and decides:
+    - approved -> move forward (for now, END; Day 9 will point to report generation)
+    - not approved -> loop back to planning_agent, WITH revision_count incremented
+    """
+    feedback = state.get("critic_feedback", {})
+    if feedback.get("approved", True):
+        return "approved"
+    return "needs_revision"
+
+
+def _increment_revision_count(state: GraphState) -> dict:
+    """
+    Small pipeline node: bumps revision_count by 1 right before looping
+    back to Planning. This is what MAX_REVISIONS in critic_agent.py checks
+    against, so the safety valve actually has something real to count.
+    """
+    current = state.get("revision_count", 0)
+    return {"revision_count": current + 1}
 
 
 def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None):
@@ -32,7 +55,9 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_node("planning_agent", planning_agent_node)
     graph.add_node("statistics", statistics_node)
     graph.add_node("visualization", visualization_node)
-    graph.add_node("insight_agent", insight_agent_node)   # NEW
+    graph.add_node("insight_agent", insight_agent_node)
+    graph.add_node("critic_agent", critic_agent_node)             # NEW
+    graph.add_node("increment_revision", _increment_revision_count)  # NEW
 
     graph.set_entry_point("file_loader")
 
@@ -41,16 +66,32 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_edge("cleaning", "profiling")
     graph.add_edge("profiling", "planning_agent")
 
-    # FAN-OUT (from Day 6, unchanged): statistics and visualization run in parallel
+    # Fan-out (Day 6)
     graph.add_edge("planning_agent", "statistics")
     graph.add_edge("planning_agent", "visualization")
 
-    # FAN-IN: both parallel branches now feed into insight_agent instead of END.
-    # LangGraph waits for BOTH statistics and visualization to finish
-    # before running insight_agent — exactly what we need, since it reads both.
+    # Fan-in (Day 7)
     graph.add_edge("statistics", "insight_agent")
     graph.add_edge("visualization", "insight_agent")
-    graph.add_edge("insight_agent", END)   # temporary until Day 8 (Critic Agent)
+
+    # NEW: insight_agent now goes to critic_agent instead of END
+    graph.add_edge("insight_agent", "critic_agent")
+
+    # NEW: THE CONDITIONAL EDGE — the actual reflection loop.
+    # add_conditional_edges takes: (source node, router function, mapping of
+    # router's return value -> actual next node name)
+    graph.add_conditional_edges(
+        "critic_agent",
+        _route_after_critic,
+        {
+            "approved": END,                       # temporary until Day 9 (Report Generation)
+            "needs_revision": "increment_revision",
+        },
+    )
+
+    # After incrementing, loop back to planning_agent — WITH critic_feedback
+    # still in state, which planning_agent_node now reads to revise its plan.
+    graph.add_edge("increment_revision", "planning_agent")
 
     conn = sqlite3.connect(db_path, check_same_thread=False)
     serde = JsonPlusSerializer(pickle_fallback=True)
@@ -61,14 +102,14 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
 
 if __name__ == "__main__":
     app_graph = build_graph()
-    config = {"configurable": {"thread_id": "demo-run-day7"}}
+    config = {"configurable": {"thread_id": "demo-run-day8"}}
     result = app_graph.invoke(
         {"file_path": "sample_data/timeseries_sample.csv"},
         config=config,
     )
-    print("Plan:", result["plan"])
-    print("\nStatistics:", result["statistics"])
-    print("\nVisualizations:", result["visualizations"])
-    print("\nInsights:")
+    print("Revision count:", result.get("revision_count", 0))
+    print("Critic feedback:", result.get("critic_feedback"))
+    print("\nFinal plan:", result.get("plan"))
+    print("\nFinal insights:")
     for insight in result.get("insights", []):
         print(f"  - {insight}")

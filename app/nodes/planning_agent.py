@@ -44,6 +44,7 @@ def _enforce_profile_guardrails(plan_dict: dict, profile: dict) -> dict:
 # --- Prompt template ---
 # This is the actual "instructions" the LLM sees every time this node runs.
 # {profile} gets filled in at runtime with the real dataset profile (as JSON text).
+# {feedback_section} gets filled in if this is a retry/revision after Critic rejection.
 PLANNING_PROMPT = ChatPromptTemplate.from_messages([
     ("system", (
         "You are a data analysis planning expert. You will be given a JSON profile "
@@ -58,9 +59,19 @@ PLANNING_PROMPT = ChatPromptTemplate.from_messages([
         "- If a categorical column has very MANY unique values (like an ID or name column), "
         "do NOT suggest a bar chart for it — it would be useless.\n"
         "- Do not suggest more than 5 charts total.\n"
-        "- Be specific: reference actual column names from the profile, never placeholders."
+        "- Be specific: reference actual column names from the profile, never placeholders.\n\n"
+        "IMPORTANT: only choose analyses from this exact list of supported names:\n"
+        "'descriptive_stats', 'correlation_analysis', 'trend_analysis', 'outlier_detection', "
+        "'value_counts_analysis'. Do not invent new analysis names.\n\n"
+        "If you are given REVIEWER FEEDBACK from a previous attempt, you MUST address "
+        "it directly — specifically include any analyses listed as missing, and do not "
+        "repeat whatever the reviewer criticized."
     )),
-    ("human", "Dataset profile:\n{profile}\n\nProduce the analysis plan now."),
+    ("human", (
+        "Dataset profile:\n{profile}\n\n"
+        "{feedback_section}"
+        "Produce the analysis plan now."
+    )),
 ])
 
 
@@ -75,13 +86,16 @@ def _build_chain():
     return PLANNING_PROMPT | structured_llm
 
 
-def planning_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
+def planning_agent_node(state: GraphState, max_retries: int = 2) -> dict:
     """
     LangGraph node (REAL AGENT — LLM-powered).
-    Now with retry logic: if the LLM call or validation fails, we retry
-    a couple of times with increasing pauses before giving up.
+    Now with retry logic and critic reflection loop integration.
+    Reads dataset profile and prior critic feedback (if any) from state,
+    and returns a partial state dictionary updating state['plan'].
     """
     profile = state.get("profile")
+    critic_feedback = state.get("critic_feedback")
+
     if not profile:
         raise PlanningAgentError(
             "No 'profile' found in state. Planning Agent must run AFTER Profiling Node."
@@ -94,18 +108,33 @@ def planning_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
 
     chain = _build_chain()
     profile_json = json.dumps(profile, indent=2)
+
+    # Build feedback section if this is a revision loop following a critic rejection
+    if critic_feedback and not critic_feedback.get("approved", True):
+        feedback_section = (
+            f"REVIEWER FEEDBACK from a previous attempt (you MUST address this):\n"
+            f"Reason for rejection: {critic_feedback.get('reason', '')}\n"
+            f"Specifically missing: {critic_feedback.get('missing_analyses', [])}\n\n"
+        )
+    else:
+        feedback_section = ""
+
     last_error = None
 
     for attempt in range(1, max_retries + 2):  # max_retries=2 -> 3 total attempts
         try:
-            plan_result: AnalysisPlan = chain.invoke({"profile": profile_json})
+            plan_result: AnalysisPlan = chain.invoke({
+                "profile": profile_json,
+                "feedback_section": feedback_section,
+            })
             plan_dict = plan_result.model_dump()
 
             # Guardrail check remains intact here
             plan_dict = _enforce_profile_guardrails(plan_dict, profile)
             plan_dict["_meta"] = {"attempts": attempt}
 
-            return {**state, "plan": plan_dict}
+            # Return partial dictionary update to comply with LangGraph state rules
+            return {"plan": plan_dict}
         except Exception as e:
             last_error = e
             if attempt <= max_retries:

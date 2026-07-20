@@ -33,6 +33,7 @@ class GraphState(TypedDict, total=False):
 
     # --- Day 7: Insight Generation Agent ---
     insights: List[str]
+    insights_detailed: List[dict]   # NEW — full insight objects with source_analysis
 
     # --- Day 8: Critic Agent + reflection loop ---
     critic_feedback: dict       # {"approved": bool, "reason": str}

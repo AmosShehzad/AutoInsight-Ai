@@ -1,16 +1,16 @@
 import os
 import json
 import time
-from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
 from app.schemas.state import GraphState
 from app.schemas.critic import CriticFeedback
+from utils.llm_factory import get_llm
 
 load_dotenv()
 
-MAX_REVISIONS = 2   # safety valve — after this many loops, force approval regardless
+MAX_REVISIONS = 2   # Safety valve — after this many loops, force approval
 
 
 class CriticAgentError(Exception):
@@ -51,7 +51,10 @@ CRITIC_PROMPT = ChatPromptTemplate.from_messages([
 
 
 def _build_chain():
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.1)
+    """
+    Helper that builds the prompt -> structured-LLM chain using the central factory.
+    """
+    llm = get_llm(temperature=0.1)
     structured_llm = llm.with_structured_output(CriticFeedback)
     return CRITIC_PROMPT | structured_llm
 
@@ -59,13 +62,7 @@ def _build_chain():
 def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     """
     LangGraph node (REAL AGENT — LLM-powered).
-    Reviews the full analysis produced so far and decides if it's good
-    enough. Writes 'critic_feedback' to state, which the conditional
-    edge (in graph.py) reads to decide: loop back to Planning, or move on.
-
-    Also enforces MAX_REVISIONS as a safety valve — if we've already
-    looped back this many times, force approval so the graph can never
-    get stuck in an infinite loop.
+    Reviews the full analysis produced so far and decides if it's acceptable.
     """
     plan = state.get("plan")
     statistics = state.get("statistics")
@@ -79,8 +76,6 @@ def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
             "all present in state. It must run AFTER the Insight Agent."
         )
 
-    # SAFETY VALVE: if we've already revised the max number of times,
-    # force approval instead of asking the LLM again — prevents infinite loops.
     if revision_count >= MAX_REVISIONS:
         forced_feedback = {
             "approved": True,
@@ -88,11 +83,6 @@ def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
             "missing_analyses": [],
         }
         return {"critic_feedback": forced_feedback}
-
-    if not os.getenv("GROQ_API_KEY"):
-        raise CriticAgentError(
-            "GROQ_API_KEY not set. Add it to your .env file before running the Critic Agent."
-        )
 
     chart_summaries = [
         {"chart_type": c["chart_type"], "columns": c["columns"]}

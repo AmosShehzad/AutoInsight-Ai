@@ -1,14 +1,13 @@
 import os
 import json
 import time
-from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
 from app.schemas.state import GraphState
 from app.schemas.plan import AnalysisPlan
+from utils.llm_factory import get_llm
 
-# Load environment variables (GROQ_API_KEY) from .env into os.environ
 load_dotenv()
 
 
@@ -35,16 +34,11 @@ def _enforce_profile_guardrails(plan_dict: dict, profile: dict) -> dict:
         if "line" not in charts_text and "time" not in charts_text:
             charts.insert(0, f"line_chart_{datetime_cols[0]}")
 
-    # Keep output within the prompt's max chart count rule.
     plan_dict["analyses"] = analyses
     plan_dict["charts"] = charts[:5]
     return plan_dict
 
 
-# --- Prompt template ---
-# This is the actual "instructions" the LLM sees every time this node runs.
-# {profile} gets filled in at runtime with the real dataset profile (as JSON text).
-# {feedback_section} gets filled in if this is a retry/revision after Critic rejection.
 PLANNING_PROMPT = ChatPromptTemplate.from_messages([
     ("system", (
         "You are a data analysis planning expert. You will be given a JSON profile "
@@ -77,11 +71,9 @@ PLANNING_PROMPT = ChatPromptTemplate.from_messages([
 
 def _build_chain():
     """
-    Small helper that builds the prompt -> structured-LLM chain.
-    Pulled into its own function so retry logic can call it
-    fresh each attempt without duplicating setup code.
+    Helper that builds the prompt -> structured-LLM chain using the central factory.
     """
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.2)
+    llm = get_llm(temperature=0.2)
     structured_llm = llm.with_structured_output(AnalysisPlan)
     return PLANNING_PROMPT | structured_llm
 
@@ -89,7 +81,6 @@ def _build_chain():
 def planning_agent_node(state: GraphState, max_retries: int = 2) -> dict:
     """
     LangGraph node (REAL AGENT — LLM-powered).
-    Now with retry logic and critic reflection loop integration.
     Reads dataset profile and prior critic feedback (if any) from state,
     and returns a partial state dictionary updating state['plan'].
     """
@@ -101,15 +92,9 @@ def planning_agent_node(state: GraphState, max_retries: int = 2) -> dict:
             "No 'profile' found in state. Planning Agent must run AFTER Profiling Node."
         )
 
-    if not os.getenv("GROQ_API_KEY"):
-        raise PlanningAgentError(
-            "GROQ_API_KEY not set. Add it to your .env file before running the Planning Agent."
-        )
-
     chain = _build_chain()
     profile_json = json.dumps(profile, indent=2)
 
-    # Build feedback section if this is a revision loop following a critic rejection
     if critic_feedback and not critic_feedback.get("approved", True):
         feedback_section = (
             f"REVIEWER FEEDBACK from a previous attempt (you MUST address this):\n"
@@ -121,7 +106,7 @@ def planning_agent_node(state: GraphState, max_retries: int = 2) -> dict:
 
     last_error = None
 
-    for attempt in range(1, max_retries + 2):  # max_retries=2 -> 3 total attempts
+    for attempt in range(1, max_retries + 2):
         try:
             plan_result: AnalysisPlan = chain.invoke({
                 "profile": profile_json,
@@ -129,11 +114,9 @@ def planning_agent_node(state: GraphState, max_retries: int = 2) -> dict:
             })
             plan_dict = plan_result.model_dump()
 
-            # Guardrail check remains intact here
             plan_dict = _enforce_profile_guardrails(plan_dict, profile)
             plan_dict["_meta"] = {"attempts": attempt}
 
-            # Return partial dictionary update to comply with LangGraph state rules
             return {"plan": plan_dict}
         except Exception as e:
             last_error = e

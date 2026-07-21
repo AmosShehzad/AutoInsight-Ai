@@ -1,12 +1,18 @@
 import os
+import sys
+from pathlib import Path
+
+# Automatically adds the project root directory to Python's import search path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import json
 import time
-from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
 from app.schemas.state import GraphState
 from app.schemas.insight import InsightList
+from utils.llm_factory import get_llm
 
 load_dotenv()
 
@@ -38,11 +44,14 @@ INSIGHT_PROMPT = ChatPromptTemplate.from_messages([
         "Charts generated:\n{charts}\n\n"
         "Write the business insights now."
     )),
-]) 
+])
 
 
 def _build_chain():
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.3)
+    """
+    Helper that builds the prompt -> structured-LLM chain using the central factory.
+    """
+    llm = get_llm(temperature=0.3)
     structured_llm = llm.with_structured_output(InsightList)
     return INSIGHT_PROMPT | structured_llm
 
@@ -50,11 +59,7 @@ def _build_chain():
 def insight_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     """
     LangGraph node (REAL AGENT — LLM-powered).
-    Runs AFTER Statistics and Visualization have both finished (fan-in),
-    since it needs to read both of their results. Turns numbers and
-    chart summaries into grounded, specific business language.
-
-    Retry-with-backoff, same resilience pattern as the Planning Agent (Day 5).
+    Turns numerical results and chart summaries into grounded business language.
     """
     statistics = state.get("statistics")
     visualizations = state.get("visualizations")
@@ -68,13 +73,6 @@ def insight_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
             "No 'visualizations' found in state. Insight Agent must run AFTER the Visualization Node."
         )
 
-    if not os.getenv("GROQ_API_KEY"):
-        raise InsightAgentError(
-            "GROQ_API_KEY not set. Add it to your .env file before running the Insight Agent."
-        )
-
-    # Build a short, LLM-friendly summary of the charts instead of dumping
-    # full file paths (irrelevant noise for the LLM's reasoning).
     chart_summaries = [
         {"chart_type": c["chart_type"], "columns": c["columns"], "reason": c["reason"]}
         for c in visualizations.get("generated", [])
@@ -92,8 +90,6 @@ def insight_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
                 "charts": charts_json,
             })
             insights_list = [insight.text for insight in result.insights]
-            # Also keep the full structured version (with source_analysis) for
-            # the Critic Agent to inspect later (Day 8).
             insights_detailed = [insight.model_dump() for insight in result.insights]
 
             return {

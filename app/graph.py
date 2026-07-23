@@ -1,10 +1,11 @@
 import sys
+import uuid
+import sqlite3
 from pathlib import Path
 
 # Add project root to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-import sqlite3
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
@@ -19,17 +20,33 @@ from app.nodes.statistics import statistics_node
 from app.nodes.visualization import visualization_node
 from app.nodes.insight_agent import insight_agent_node
 from app.nodes.critic_agent import critic_agent_node
-from app.nodes.report_generator import report_generator_node   # NEW import
+from app.nodes.report_generator import report_generator_node
 
 DB_PATH = "checkpoints.sqlite"
 
 
+class PipelineExecutionError(Exception):
+    """User-facing wrapper for any pipeline failure — carries a clean message."""
+    def __init__(self, stage: str, message: str):
+        self.stage = stage
+        self.message = message
+        super().__init__(f"[{stage}] {message}")
+
+
+def run_pipeline_safely(app_graph, initial_state: dict, config: dict) -> dict:
+    """
+    Wraps graph.invoke() with a friendly error boundary. Instead of a raw
+    traceback reaching the end user, returns a clear stage + message.
+    Use this in FastAPI (Day 11) instead of calling .invoke() directly.
+    """
+    try:
+        return app_graph.invoke(initial_state, config=config)
+    except Exception as e:
+        stage = type(e).__module__.split(".")[-1] if hasattr(type(e), "__module__") else "unknown"
+        raise PipelineExecutionError(stage=stage, message=str(e))
+
+
 def _route_after_critic(state: GraphState) -> str:
-    """
-    Conditional edge router. Reads critic_feedback and decides:
-    - approved -> move forward (report_generator)
-    - not approved -> loop back to planning_agent, WITH revision_count incremented
-    """
     feedback = state.get("critic_feedback", {})
     if feedback.get("approved", True):
         return "approved"
@@ -37,11 +54,6 @@ def _route_after_critic(state: GraphState) -> str:
 
 
 def _increment_revision_count(state: GraphState) -> dict:
-    """
-    Small pipeline node: bumps revision_count by 1 right before looping
-    back to Planning. This is what MAX_REVISIONS in critic_agent.py checks
-    against, so the safety valve actually has something real to count.
-    """
     current = state.get("revision_count", 0)
     return {"revision_count": current + 1}
 
@@ -59,7 +71,7 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_node("insight_agent", insight_agent_node)
     graph.add_node("critic_agent", critic_agent_node)
     graph.add_node("increment_revision", _increment_revision_count)
-    graph.add_node("report_generator", report_generator_node)   # NEW
+    graph.add_node("report_generator", report_generator_node)
 
     graph.set_entry_point("file_loader")
 
@@ -68,29 +80,29 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_edge("cleaning", "profiling")
     graph.add_edge("profiling", "planning_agent")
 
-    # Fan-out (Day 6)
+    # Fan-out
     graph.add_edge("planning_agent", "statistics")
     graph.add_edge("planning_agent", "visualization")
 
-    # Fan-in (Day 7)
+    # Fan-in
     graph.add_edge("statistics", "insight_agent")
     graph.add_edge("visualization", "insight_agent")
 
     # Insight Agent -> Critic Agent
     graph.add_edge("insight_agent", "critic_agent")
 
-    # THE CONDITIONAL EDGE — Reflection loop router
+    # Reflection loop router
     graph.add_conditional_edges(
         "critic_agent",
         _route_after_critic,
         {
-            "approved": "report_generator",   # CHANGED — now routes to report_generator
+            "approved": "report_generator",
             "needs_revision": "increment_revision",
         },
     )
 
     graph.add_edge("increment_revision", "planning_agent")
-    graph.add_edge("report_generator", END)   # NEW — final step of full pipeline
+    graph.add_edge("report_generator", END)
 
     conn = sqlite3.connect(db_path, check_same_thread=False)
     serde = JsonPlusSerializer(pickle_fallback=True)
@@ -101,9 +113,13 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
 
 if __name__ == "__main__":
     app_graph = build_graph()
-    config = {"configurable": {"thread_id": "demo-run-day9"}}
-    result = app_graph.invoke(
-        {"file_path": "sample_data/timeseries_sample.csv"},
+    # Generate unique thread ID for each run to avoid reading stale/corrupted state
+    run_id = f"demo-run-{uuid.uuid4().hex[:6]}"
+    config = {"configurable": {"thread_id": run_id}}
+    
+    result = run_pipeline_safely(
+        app_graph,
+        {"file_path": "sample_data/Sales-Export_2019-2020.csv"},
         config=config,
     )
     print("Revision count:", result.get("revision_count", 0))

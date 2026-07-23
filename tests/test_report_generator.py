@@ -37,6 +37,53 @@ def _full_state(with_chart=False, tmp_path=None):
     }
 
 
+def _rich_state(tmp_path=None):
+    state = _full_state(tmp_path=tmp_path)
+    state["profile"] = {
+        "row_count": 250,
+        "column_count": 5,
+        "numeric_columns": ["revenue", "profit"],
+        "categorical_columns": ["region"],
+        "datetime_columns": ["date"],
+    }
+    state["validation_report"] = {
+        "health_score": 97.5,
+        "missing_cells": 0,
+        "duplicate_rows": 1,
+    }
+    state["cleaning_report"] = {
+        "duplicates_removed": 1,
+        "rows_after_cleaning": 249,
+    }
+    state["plan"] = {
+        "summary": "Focus on revenue growth, margin quality, and regional concentration.",
+        "analyses": ["trend_analysis", "correlation_analysis", "outlier_detection", "descriptive_stats"],
+        "charts": [],
+    }
+    state["statistics"] = {
+        "results": {
+            "trend_analysis": {
+                "revenue": {"date_column": "date", "first_value": 100.0, "last_value": 145.0, "percent_change": 45.0}
+            },
+            "correlation_analysis": {
+                "revenue": {"profit": 0.83},
+                "profit": {"revenue": 0.83},
+            },
+            "outlier_detection": {
+                "revenue": {"outlier_count": 2}
+            },
+            "descriptive_stats": {
+                "revenue": {"mean": 128.2, "sum": 32050.0}
+            },
+        }
+    }
+    state["insights"] = [
+        "Revenue increased by 45.0% over the observed period.",
+        "Revenue and profit moved together with strong positive correlation.",
+    ]
+    return state
+
+
 def test_report_is_generated_successfully(tmp_path, monkeypatch):
     # redirect REPORTS_DIR to a temp folder so tests don't pollute outputs/reports
     import app.nodes.report_generator as rg_module
@@ -63,6 +110,16 @@ def test_report_includes_chart_image(tmp_path, monkeypatch):
     text_only_state = _full_state()
     text_only_result = report_generator_node(text_only_state)
     assert os.path.getsize(result["report_path"]) > os.path.getsize(text_only_result["report_path"])
+
+
+def test_rich_report_builds_successfully(tmp_path, monkeypatch):
+    import app.nodes.report_generator as rg_module
+    monkeypatch.setattr(rg_module, "REPORTS_DIR", str(tmp_path))
+
+    result = report_generator_node(_rich_state(tmp_path=tmp_path))
+
+    assert os.path.exists(result["report_path"])
+    assert os.path.getsize(result["report_path"]) > 0
 
 
 def test_missing_required_fields_raises_error():

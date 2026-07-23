@@ -3,7 +3,8 @@ import json
 import time
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
-
+from app.logger import get_logger
+logger = get_logger(__name__)
 from app.schemas.state import GraphState
 from app.schemas.critic import CriticFeedback
 from utils.llm_factory import get_llm
@@ -38,14 +39,17 @@ CRITIC_PROMPT = ChatPromptTemplate.from_messages([
         "Be specific in your reason. If rejecting, list the exact analysis names that "
         "should be added in missing_analyses — only use names from this list: "
         "'descriptive_stats', 'correlation_analysis', 'trend_analysis', 'outlier_detection', "
-        "'value_counts_analysis'."
+        "'value_counts_analysis'.\n\n"
+        "You MUST respond with a valid JSON object matching this exact shape:\n"
+        '{{"approved": true, "reason": "...", "missing_analyses": ["..."]}}\n'
+        "Return ONLY the JSON object, nothing else — no explanation, no markdown code fences."
     )),
     ("human", (
         "Plan:\n{plan}\n\n"
         "Statistics results:\n{statistics}\n\n"
         "Charts generated:\n{charts}\n\n"
         "Insights:\n{insights}\n\n"
-        "Review this analysis now."
+        "Review this analysis now, and output your decision as a JSON object."
     )),
 ])
 
@@ -55,7 +59,8 @@ def _build_chain():
     Helper that builds the prompt -> structured-LLM chain using the central factory.
     """
     llm = get_llm(temperature=0.1)
-    structured_llm = llm.with_structured_output(CriticFeedback)
+    # Switched to JSON mode for improved structured output reliability
+    structured_llm = llm.with_structured_output(CriticFeedback, method="json_mode")
     return CRITIC_PROMPT | structured_llm
 
 

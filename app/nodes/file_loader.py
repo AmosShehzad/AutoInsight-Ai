@@ -40,7 +40,9 @@ def _parse_date_columns(df: pd.DataFrame) -> pd.DataFrame:
                         
     return df
 
+from app.node_wrapper import node_error_boundary
 
+@node_error_boundary("file_loader")
 def load_file_node(state: GraphState) -> GraphState:
     """
     LangGraph node: reads file_path from state, detects CSV or Excel,

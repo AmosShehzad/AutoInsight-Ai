@@ -5,8 +5,8 @@ from typing import List
 class CriticFeedback(BaseModel):
     """
     The Critic Agent's judgment on the full analysis produced so far.
-    This exact shape drives the conditional edge — 'approved' decides
-    whether the graph moves forward or loops back to Planning.
+    This exact shape drives the conditional edge in graph.py — 'approved'
+    decides whether the graph moves forward or loops back to Planning.
     """
     approved: bool = Field(
         description="True if the analysis is thorough and ready for the report. False if it needs more work."

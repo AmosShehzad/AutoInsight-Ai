@@ -35,6 +35,9 @@ class GraphState(TypedDict, total=False):
     insights: List[str]
     insights_detailed: List[dict]   # NEW — full insight objects with source_analysis
 
+    # --- Narrative Agent (business story, column intelligence, opportunities, risks) ---
+    narrative: dict
+    
     # --- Day 8: Critic Agent + reflection loop ---
     critic_feedback: dict       # {"approved": bool, "reason": str}
     revision_count: int         # how many times Critic sent it back to Planning

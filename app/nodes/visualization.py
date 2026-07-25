@@ -8,8 +8,13 @@ import numpy as np
 
 from app.logger import get_logger
 from app.schemas.state import GraphState
+from app.node_wrapper import node_error_boundary
+from app.config import config
 
 logger = get_logger(__name__)
+
+# Single source of truth from config
+CHARTS_DIR = Path(config.CHARTS_DIR)
 
 # Modern, boardroom-ready executive color palette
 COLORS = {
@@ -23,9 +28,6 @@ COLORS = {
     "text": "#1F2937",
     "subtext": "#6B7280",
 }
-
-# Output directory for generated chart artifacts
-CHARTS_DIR = Path("outputs/charts")
 
 
 class VisualizationNodeError(Exception):
@@ -96,7 +98,7 @@ def _get_primary_metric(df: pd.DataFrame) -> str | None:
 def _get_primary_categorical(df: pd.DataFrame) -> list[str]:
     """Finds categorical dimensions sorted by usability."""
     cat_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
-    # Prioritize columns with reasonable cardinality (between 2 and 25 distinct values)
+    # Prioritize columns with reasonable cardinality (between 2 and 30 distinct values)
     usable_cats = [c for c in cat_cols if 2 <= df[c].nunique() <= 30]
     return usable_cats if usable_cats else cat_cols
 
@@ -115,6 +117,42 @@ def _get_datetime_column(df: pd.DataFrame) -> str | None:
             except Exception:
                 pass
     return None
+
+
+# ---------------------------------------------------------------------------
+# Chart Type Normalization & Dispatch
+# ---------------------------------------------------------------------------
+
+def _normalize_chart_type(raw_type: str) -> str:
+    """
+    Normalizes a chart_type string before alias lookup: lowercases,
+    strips whitespace, and collapses spaces/hyphens to underscores.
+    """
+    return str(raw_type).strip().lower().replace(" ", "_").replace("-", "_")
+
+
+CHART_TYPE_ALIASES = {
+    "bar": "pareto_bar",
+    "bar_chart": "pareto_bar",
+    "pareto_bar": "pareto_bar",
+    "pareto": "pareto_bar",
+    "horizontal_bar": "pareto_bar",
+    "line": "line",
+    "line_chart": "line",
+    "time_series": "line",
+    "stacked_bar": "stacked_bar",
+    "stacked": "stacked_bar",
+    "crosstab": "stacked_bar",
+    "histogram": "quantile_hist",
+    "hist": "quantile_hist",
+    "quantile_hist": "quantile_hist",
+    "distribution": "quantile_hist",
+    "scatter": "scatter",
+    "scatter_plot": "scatter",
+    "heatmap": "correlation_heatmap",
+    "correlation": "correlation_heatmap",
+    "correlation_heatmap": "correlation_heatmap",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -171,12 +209,19 @@ def _line_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
 
 def _pareto_bar_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
     """Horizontal Pareto bar chart for top 10 segment drivers (groupby + nlargest)."""
+    cats = _get_primary_categorical(df)
+    if columns and columns[0] in df.columns:
+        cat_col = columns[0]
+    elif cats:
+        cat_col = cats[0]
+    else:
+        raise ValueError("Pareto bar chart requires at least one categorical column.")
+
+    metric_col = columns[1] if len(columns) > 1 and columns[1] in df.columns else _get_primary_metric(df)
+
     _apply_chart_style()
     fig, ax = plt.subplots(figsize=(8, 4.2))
     try:
-        cat_col = columns[0] if columns else _get_primary_categorical(df)[0]
-        metric_col = columns[1] if len(columns) > 1 and columns[1] in df.columns else _get_primary_metric(df)
-
         if metric_col and metric_col != cat_col:
             grouped = df.groupby(cat_col)[metric_col].sum().nlargest(10).sort_values(ascending=True)
             title = f"Top 10 {cat_col.replace('_', ' ').title()} by Total {metric_col.replace('_', ' ').title()}"
@@ -220,14 +265,18 @@ def _pareto_bar_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
 
 def _stacked_bar_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
     """Cross-tabulation stacked bar chart (crosstab + pivot_table)."""
+    cats = _get_primary_categorical(df)
+    cat1 = columns[0] if columns and columns[0] in df.columns else (cats[0] if cats else None)
+    cat2 = columns[1] if len(columns) > 1 and columns[1] in df.columns else (cats[1] if len(cats) > 1 else cat1)
+
+    if not cat1 or not cat2:
+        raise ValueError("Stacked bar chart requires 2 valid categorical columns in dataframe.")
+
+    metric = _get_primary_metric(df)
+
     _apply_chart_style()
     fig, ax = plt.subplots(figsize=(8, 4.2))
     try:
-        cats = _get_primary_categorical(df)
-        cat1 = columns[0] if columns and columns[0] in df.columns else (cats[0] if cats else df.columns[0])
-        cat2 = columns[1] if len(columns) > 1 and columns[1] in df.columns else (cats[1] if len(cats) > 1 else cat1)
-        metric = _get_primary_metric(df)
-
         if cat1 != cat2 and metric:
             pivot = pd.pivot_table(
                 df, values=metric, index=cat1, columns=cat2, aggfunc="sum", fill_value=0
@@ -256,13 +305,17 @@ def _stacked_bar_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
 
 def _quantile_distribution_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
     """Histogram & Boxplot with explicit quantile threshold lines (P50, P90)."""
+    col = columns[0] if columns and columns[0] in df.columns else _get_primary_metric(df)
+    if not col or col not in df.columns:
+        numeric_cols = df.select_dtypes(include="number").columns
+        if not numeric_cols.empty:
+            col = numeric_cols[0]
+        else:
+            raise ValueError("Quantile distribution chart requires at least 1 numeric column.")
+
     _apply_chart_style()
     fig, ax = plt.subplots(figsize=(8, 4.2))
     try:
-        col = columns[0] if columns and columns[0] in df.columns else _get_primary_metric(df)
-        if not col:
-            col = df.select_dtypes(include="number").columns[0]
-
         vals = df[col].dropna()
         q50 = float(vals.quantile(0.50))
         q90 = float(vals.quantile(0.90))
@@ -285,10 +338,15 @@ def _quantile_distribution_chart(df: pd.DataFrame, columns: list, save_path: str
 
 def _scatter_chart(df: pd.DataFrame, columns: list, save_path: str) -> None:
     """Bivariate scatter plot with trend line."""
+    if len(columns) < 2:
+        raise ValueError(f"Scatter chart requires 2 columns, got {len(columns)}: {columns}")
+    x_col, y_col = columns[0], columns[1]
+    if x_col not in df.columns or y_col not in df.columns:
+        raise ValueError(f"Scatter chart columns not found in dataframe: {columns}")
+
     _apply_chart_style()
     fig, ax = plt.subplots(figsize=(8, 4.2))
     try:
-        x_col, y_col = columns[0], columns[1]
         ax.scatter(df[x_col], df[y_col], color=COLORS["secondary"], alpha=0.65, s=50, edgecolors="white", linewidth=0.5)
 
         # Simple linear trend line
@@ -349,6 +407,16 @@ def _correlation_heatmap(df: pd.DataFrame, columns: list, save_path: str) -> Non
         plt.close(fig)
 
 
+CHART_RENDERERS = {
+    "pareto_bar": _pareto_bar_chart,
+    "line": _line_chart,
+    "stacked_bar": _stacked_bar_chart,
+    "quantile_hist": _quantile_distribution_chart,
+    "scatter": _scatter_chart,
+    "correlation_heatmap": _correlation_heatmap,
+}
+
+
 # ---------------------------------------------------------------------------
 # Auto-Generation Engine (Chart-Heavy Safeguard)
 # ---------------------------------------------------------------------------
@@ -403,7 +471,7 @@ def _generate_auto_executive_charts(df: pd.DataFrame) -> list[dict]:
             "columns": numeric_cols[:5],
             "reason": "Inter-feature correlation analysis"
         })
-    elif len(cats) >= 2 and primary_num: # Fallback secondary pareto
+    elif len(cats) >= 2 and primary_num:  # Fallback secondary pareto
         auto_plan.append({
             "chart_type": "pareto_bar",
             "columns": [cats[1], primary_num],
@@ -417,12 +485,22 @@ def _generate_auto_executive_charts(df: pd.DataFrame) -> list[dict]:
 # LangGraph Node Entrypoint
 # ---------------------------------------------------------------------------
 
+@node_error_boundary("visualization")
 def visualization_node(state: GraphState) -> dict:
     """
     LangGraph node for generating executive visualizations.
     Renders requested chart specifications and auto-generates fallback executive charts.
     """
     logger.info("Executing Visualization Node...")
+
+    # Safe state extraction & normalization for visualizations
+    visualizations = state.get("visualizations")
+    if visualizations is None:
+        logger.warning("'visualizations' key missing from state — defaulting to empty chart list.")
+        visualizations = {"generated": []}
+    elif isinstance(visualizations, list):
+        logger.warning("'visualizations' was a raw list, not expected dict shape — wrapping it.")
+        visualizations = {"generated": visualizations}
 
     # Flexible DataFrame retrieval
     df: pd.DataFrame = state.get("cleaned_data")
@@ -444,56 +522,61 @@ def visualization_node(state: GraphState) -> dict:
 
     # If plan has fewer than 4 charts, supplement with auto-detected executive charts
     if len(charts_plan) < 4:
-        logger.info("Plan specifies < 4 charts. Supplementing with Auto-Executive Chart Engine...")
+        logger.warning(
+            f"Plan specified only {len(charts_plan)} chart(s) — supplementing with "
+            "auto-generated charts. This is a Visualization Node fallback, not a "
+            "Planning Agent decision; tagging auto-generated charts."
+        )
         auto_charts = _generate_auto_executive_charts(df)
         
         # Merge without duplicate types
         existing_types = {c.get("chart_type") for c in charts_plan}
         for ac in auto_charts:
             if ac["chart_type"] not in existing_types:
+                ac["auto_generated"] = True
                 charts_plan.append(ac)
 
-    generated = []
-    unsupported_charts = []
+    # Initialize accumulation lists, preserving any existing items in normalized state
+    generated = list(visualizations.get("generated", []))
+    unsupported_charts = list(visualizations.get("unsupported_charts", []))
 
     for idx, chart_spec in enumerate(charts_plan):
-        chart_type = str(chart_spec.get("chart_type", "")).lower()
+        raw_chart_type = chart_spec.get("chart_type", "")
         columns = chart_spec.get("columns", [])
         reason = chart_spec.get("reason", "")
+        auto_generated = chart_spec.get("auto_generated", False)
 
-        file_name = f"chart_{idx + 1}_{chart_type}.png"
+        normalized = _normalize_chart_type(raw_chart_type)
+        canonical_type = CHART_TYPE_ALIASES.get(normalized)
+
+        if canonical_type is None:
+            logger.warning(
+                f"Unrecognized chart_type '{raw_chart_type}' (normalized: '{normalized}') — using default fallback 'pareto_bar'."
+            )
+            canonical_type = "pareto_bar"
+
+        file_name = f"chart_{idx + 1}_{canonical_type}.png"
         file_path = str(CHARTS_DIR / file_name)
 
         try:
-            if chart_type in ["bar", "bar_chart"]:
-                _pareto_bar_chart(df, columns, file_path)
-            elif chart_type in ["pareto_bar", "pareto", "horizontal_bar"]:
-                _pareto_bar_chart(df, columns, file_path)
-            elif chart_type in ["line", "line_chart", "time_series"]:
-                _line_chart(df, columns, file_path)
-            elif chart_type in ["stacked_bar", "stacked", "crosstab"]:
-                _stacked_bar_chart(df, columns, file_path)
-            elif chart_type in ["histogram", "hist", "quantile_hist", "distribution"]:
-                _quantile_distribution_chart(df, columns, file_path)
-            elif chart_type in ["scatter", "scatter_plot"]:
-                _scatter_chart(df, columns, file_path)
-            elif chart_type in ["heatmap", "correlation", "correlation_heatmap"]:
-                _correlation_heatmap(df, columns, file_path)
-            else:
-                # Default fallback renderer
-                _pareto_bar_chart(df, columns, file_path)
+            renderer = CHART_RENDERERS[canonical_type]
+            renderer(df, columns, file_path)
 
-            generated.append({
-                "chart_type": chart_type,
+            gen_entry = {
+                "chart_type": canonical_type,
                 "columns": columns,
                 "file_path": file_path,
                 "reason": reason,
-            })
-            logger.info(f"Rendered chart [{idx + 1}]: {chart_type} -> {file_path}")
+            }
+            if auto_generated:
+                gen_entry["auto_generated"] = True
+
+            generated.append(gen_entry)
+            logger.info(f"Rendered chart [{idx + 1}]: {canonical_type} -> {file_path}")
 
         except Exception as e:
-            logger.error(f"Failed to render chart [{chart_type}]: {e}")
-            unsupported_charts.append(f"{chart_type}: {str(e)}")
+            logger.error(f"Failed to render chart [{raw_chart_type} / {canonical_type}]: {e}")
+            unsupported_charts.append(f"{raw_chart_type}: {str(e)}")
 
     logger.info(f"Visualization Node completed — {len(generated)} generated, {len(unsupported_charts)} failed.")
 

@@ -1,8 +1,14 @@
-import pandas as pd
+"""
+Statistics Node Module for AutoInsight AI
+Executes statistical analyses based on the execution plan.
+"""
+
+from typing import Any, Dict, List
 import numpy as np
-from typing import Dict, Any, List
+import pandas as pd
+
 from app.logger import get_logger
-from app.schemas.state import GraphState
+from app.node_wrapper import node_error_boundary
 
 logger = get_logger(__name__)
 
@@ -12,164 +18,22 @@ class StatisticsNodeError(Exception):
     pass
 
 
-def run_comprehensive_statistics(df: pd.DataFrame) -> Dict[str, Any]:
+def _get_dataframe(state: dict) -> pd.DataFrame:
     """
-    Executes an analytics suite leveraging 21 core Pandas functions
-    to generate deep business metrics and chart-ready payloads.
+    Reads the cleaned dataframe from state using the CANONICAL key only.
+    No silent fallbacks — if 'cleaned_dataframe' is missing, that's a
+    real upstream bug (Cleaning Node didn't run, or wrote to the wrong
+    key) and should fail loudly here, not quietly degrade to raw data.
     """
-    results = {}
-    
-    # Identify column types
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-    datetime_cols = df.select_dtypes(include=['datetime64', 'datetime']).columns.tolist()
-    
-    # Fallback attempt to parse datetime if not explicitly typed
-    if not datetime_cols:
-        for col in df.columns:
-            if 'date' in col.lower() or 'time' in col.lower():
-                try:
-                    df[col] = pd.to_datetime(df[col])
-                    datetime_cols.append(col)
-                    break
-                except Exception:
-                    pass
-
-    # ---------------------------------------------------------------------------
-    # 1. describe(), quantile(), nunique()
-    # ---------------------------------------------------------------------------
-    results["cardinality"] = {col: df[col].nunique() for col in df.columns} # nunique()
-    
-    if numeric_cols:
-        num_df = df[numeric_cols]
-        desc = num_df.describe().to_dict() # describe()
-        
-        # Add quantiles
-        for col in numeric_cols:
-            q_vals = {
-                "q25": float(df[col].quantile(0.25)), # quantile()
-                "q50": float(df[col].quantile(0.50)),
-                "q75": float(df[col].quantile(0.75)),
-                "q90": float(df[col].quantile(0.90)),
-                "q99": float(df[col].quantile(0.99))
-            }
-            if col in desc:
-                desc[col].update(q_vals)
-        results["descriptive_stats"] = desc
-
-    # ---------------------------------------------------------------------------
-    # 2. corr()
-    # ---------------------------------------------------------------------------
-    if len(numeric_cols) >= 2:
-        results["correlation_analysis"] = df[numeric_cols].corr().to_dict() # corr()
-    else:
-        results["correlation_analysis"] = {"skipped_reason": "Fewer than 2 numeric columns."}
-
-    # ---------------------------------------------------------------------------
-    # 3. value_counts(), nlargest(), nsmallest()
-    # ---------------------------------------------------------------------------
-    val_counts = {}
-    for col in categorical_cols[:5]: # Top 5 categorical dimensions
-        vc = df[col].value_counts() # value_counts()
-        val_counts[col] = {
-            "top_5": vc.nlargest(5).to_dict(), # nlargest()
-            "bottom_5": vc.nsmallest(5).to_dict() # nsmallest()
-        }
-    results["categorical_breakdown"] = val_counts
-
-    # ---------------------------------------------------------------------------
-    # 4. groupby(), agg(), rank(), transform(), merge()
-    # ---------------------------------------------------------------------------
-    if categorical_cols and numeric_cols:
-        primary_cat = categorical_cols[0]
-        primary_num = numeric_cols[0]
-        
-        # groupby() + agg()
-        grouped = df.groupby(primary_cat).agg({ # groupby(), agg()
-            primary_num: ['sum', 'mean', 'count', 'std']
-        })
-        grouped.columns = ['total', 'average', 'count', 'std_dev']
-        
-        # rank()
-        grouped['rank'] = grouped['total'].rank(ascending=False, method='dense') # rank()
-        
-        # transform() + merge()
-        df_copy = df.copy()
-        df_copy['cat_total'] = df_copy.groupby(primary_cat)[primary_num].transform('sum') # transform()
-        df_copy['pct_of_total'] = (df_copy[primary_num] / df_copy[primary_num].sum()) * 100
-        
-        results["group_performance"] = {
-            "grouped_by": primary_cat,
-            "measured": primary_num,
-            "groups": grouped.head(10).to_dict(orient="index")
-        }
-
-    # ---------------------------------------------------------------------------
-    # 5. pivot_table(), melt(), crosstab()
-    # ---------------------------------------------------------------------------
-    if len(categorical_cols) >= 2 and numeric_cols:
-        cat1, cat2 = categorical_cols[0], categorical_cols[1]
-        primary_num = numeric_cols[0]
-        
-        # pivot_table()
-        pivot = pd.pivot_table( # pivot_table()
-            df, values=primary_num, index=cat1, columns=cat2, aggfunc='sum', fill_value=0
+    df = state.get("cleaned_dataframe")
+    if df is None:
+        raise StatisticsNodeError(
+            "'cleaned_dataframe' missing from state. Statistics Node must run "
+            "after the Cleaning Node. If you intentionally renamed a state key, "
+            "update GraphState and every node that reads it — do not add a "
+            "silent fallback here."
         )
-        
-        # melt()
-        pivot_reset = pivot.reset_index()
-        melted = pd.melt(pivot_reset, id_vars=[cat1], var_name=cat2, value_name='total_value') # melt()
-        
-        # crosstab()
-        ct = pd.crosstab(df[cat1], df[cat2], normalize='index') * 100 # crosstab()
-        
-        results["pivot_matrix"] = {
-            "dimensions": [cat1, cat2],
-            "metric": primary_num,
-            "pivot_data": pivot.head(8).to_dict(),
-            "crosstab_pct": ct.head(8).to_dict()
-        }
-
-    # ---------------------------------------------------------------------------
-    # 6. Time-Series: resample(), pct_change(), rolling(), shift(), diff()
-    # ---------------------------------------------------------------------------
-    if datetime_cols and numeric_cols:
-        dt_col = datetime_cols[0]
-        primary_num = numeric_cols[0]
-        
-        ts_df = df.set_index(dt_col).sort_index()
-        
-        # resample()
-        monthly = ts_df[primary_num].resample('ME').sum().to_frame() # resample()
-        
-        # pct_change(), shift(), diff(), rolling()
-        monthly['pct_change'] = monthly[primary_num].pct_change() * 100 # pct_change()
-        monthly['prev_period'] = monthly[primary_num].shift(1) # shift()
-        monthly['absolute_diff'] = monthly[primary_num].diff() # diff()
-        monthly['rolling_3m_avg'] = monthly[primary_num].rolling(window=3).mean() # rolling()
-        
-        results["time_series_trend"] = {
-            "date_column": dt_col,
-            "metric": primary_num,
-            "monthly_summary": monthly.tail(12).to_dict(orient="index"),
-            "total_percent_change": float(
-                ((monthly[primary_num].iloc[-1] - monthly[primary_num].iloc[0]) / monthly[primary_num].iloc[0]) * 100
-            ) if len(monthly) > 1 else 0.0
-        }
-
-    # ---------------------------------------------------------------------------
-    # 7. explode() handling (for tag/array columns if present)
-    # ---------------------------------------------------------------------------
-    for col in categorical_cols:
-        if df[col].astype(str).str.contains(',').any():
-            exploded_df = df.assign(**{col: df[col].astype(str).str.split(',')}).explode(col) # explode()
-            results["exploded_tags"] = {
-                "column": col,
-                "top_tags": exploded_df[col].str.strip().value_counts().head(5).to_dict()
-            }
-            break
-
-    return results
+    return df
 
 
 def _get_plan_analyses(state: dict) -> List[str]:
@@ -317,17 +181,13 @@ def _run_grouped_summary_analysis(df: pd.DataFrame, categorical_cols: list[str],
         "groups": grouped.to_dict(orient="index"),
     }
 
-def statistics_node(state: dict) -> dict:
-    # Check all possible keys used across your nodes
-    df = state.get("cleaned_dataframe")
-    if df is None:
-        df = state.get("cleaned_data")
-    if df is None:
-        df = state.get("dataframe")
-    if df is None:
-        df = state.get("raw_data")
 
-    if df is None or df.empty:
+@node_error_boundary("statistics")
+def statistics_node(state: dict) -> dict:
+    # Fail loudly if canonical key 'cleaned_dataframe' is missing
+    df = _get_dataframe(state)
+
+    if df.empty:
         raise StatisticsNodeError("Statistics node requires a non-empty DataFrame in state.")
 
     plan_analyses = _get_plan_analyses(state)

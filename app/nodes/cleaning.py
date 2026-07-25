@@ -4,7 +4,9 @@ from app.logger import get_logger
 
 logger = get_logger(__name__)
 
+from app.node_wrapper import node_error_boundary
 
+@node_error_boundary("cleaning")
 def clean_data_node(state: GraphState) -> GraphState:
     """
     LangGraph node: takes the raw dataframe, strips formatting symbols (currency, commas, %),

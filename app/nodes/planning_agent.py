@@ -4,10 +4,12 @@ import time
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
+from app.config import config
+from app.logger import get_logger
+from app.node_wrapper import node_error_boundary
 from app.schemas.state import GraphState
 from app.schemas.plan import AnalysisPlan
 from utils.llm_factory import get_llm
-from app.logger import get_logger
 
 load_dotenv()
 logger = get_logger(__name__)
@@ -161,15 +163,18 @@ PLANNING_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 
-def _build_chain():
+def _build_chain(temperature: float = None):
     """
     Helper that builds the prompt -> structured-LLM chain using the central factory.
+    Uses config.LLM_MODEL and config.PLANNING_TEMPERATURE by default.
     """
-    llm = get_llm(temperature=0.2)
+    temp = temperature if temperature is not None else config.PLANNING_TEMPERATURE
+    llm = get_llm(model=config.LLM_MODEL, temperature=temp)
     structured_llm = llm.with_structured_output(AnalysisPlan, method="json_mode")
     return PLANNING_PROMPT | structured_llm
 
 
+@node_error_boundary("planning_agent")
 def planning_agent_node(state: GraphState, max_retries: int = 2) -> dict:
     """
     LangGraph node (REAL AGENT — LLM-powered).

@@ -86,7 +86,9 @@ def _format_memory_usage(bytes_val: int) -> str:
     else:
         return f"{bytes_val / (1024 * 1024):.2f} MB"
 
+from app.node_wrapper import node_error_boundary
 
+@node_error_boundary("validation")
 def validate_data_node(state: GraphState) -> GraphState:
     """
     LangGraph Node: Inspects state DataFrame for missing values, duplicates,

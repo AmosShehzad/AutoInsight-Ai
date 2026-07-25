@@ -63,7 +63,9 @@ def _build_chain():
     structured_llm = llm.with_structured_output(CriticFeedback, method="json_mode")
     return CRITIC_PROMPT | structured_llm
 
+from app.node_wrapper import node_error_boundary
 
+@node_error_boundary("critic_agent")
 def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     """
     LangGraph node (REAL AGENT — LLM-powered).

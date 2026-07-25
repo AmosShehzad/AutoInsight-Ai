@@ -101,8 +101,15 @@ def run_job(job_id: str, file_path: str) -> None:
         logger.info(f"Job {job_id}: pipeline completed successfully")
     except PipelineExecutionError as e:
         logger.error(f"Job {job_id}: pipeline failed — {e.stage}: {e.message}")
+        # Write a failure marker file for status endpoint to report
+        failure_marker = os.path.join(UPLOADS_DIR, f"{job_id}_FAILED.txt")
+        with open(failure_marker, "w") as f:
+            f.write(f"{e.stage}: {e.message}")
     except Exception as e:
         logger.error(f"Job {job_id}: unexpected pipeline failure — {e}", exc_info=True)
+        failure_marker = os.path.join(UPLOADS_DIR, f"{job_id}_FAILED.txt")
+        with open(failure_marker, "w") as f:
+            f.write(f"pipeline: {e}")
 
 
 def get_job_status(job_id: str) -> dict:
@@ -112,6 +119,22 @@ def get_job_status(job_id: str) -> dict:
     """
     if not JOB_ID_PATTERN.match(job_id):
         return {"job_id": job_id, "status": "not_found", "current_stage": None, "progress_percent": 0}
+
+    # Check for explicit failure marker file first
+    failure_marker = os.path.join(UPLOADS_DIR, f"{job_id}_FAILED.txt")
+    if os.path.exists(failure_marker):
+        try:
+            with open(failure_marker) as f:
+                error_text = f.read()
+        except Exception:
+            error_text = "Pipeline execution failed."
+        return {
+            "job_id": job_id,
+            "status": "failed",
+            "current_stage": None,
+            "progress_percent": 0,
+            "error": error_text,
+        }
 
     try:
         graph = build_graph()

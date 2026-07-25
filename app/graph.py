@@ -109,7 +109,13 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_edge("increment_revision", "planning_agent")
     graph.add_edge("report_generator", END)
 
-    conn = sqlite3.connect(db_path, check_same_thread=False)
+    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
+    # WAL (Write-Ahead Logging) mode lets one writer and multiple readers
+    # work on the SQLite file AT THE SAME TIME without locking each other out.
+    # Without this, a background pipeline write and a /status poll's read
+    # can collide and throw "database is locked".
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("PRAGMA busy_timeout=5000;")  # if still momentarily busy, wait up to 5s instead of failing instantly
     serde = JsonPlusSerializer(pickle_fallback=True)
     checkpointer = SqliteSaver(conn, serde=serde)
 

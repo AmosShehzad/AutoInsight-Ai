@@ -966,3 +966,139 @@ For troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/erro
 2026-07-25 16:18:20,840 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
 2026-07-25 16:18:20,849 | INFO | app.nodes.report_generator | Report Generator Node started
 2026-07-25 16:18:22,213 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_512c0c5d.pdf
+2026-07-26 02:43:12,035 | INFO | app.api.jobs | Job f38f05fffcf5: saved upload 'Advertising And Sales.csv' to outputs/uploads\f38f05fffcf5.csv
+2026-07-26 02:43:12,037 | INFO | app.main | Job f38f05fffcf5: upload accepted, pipeline queued
+2026-07-26 02:43:12,043 | INFO | app.api.jobs | Auto-cleaned old upload file: df5b5faa1614.csv
+2026-07-26 02:43:12,050 | INFO | app.api.jobs | Auto-cleaned old upload file: df5b5faa1614_cleaned.csv
+2026-07-26 02:43:12,056 | INFO | app.api.jobs | Job f38f05fffcf5: pipeline started
+2026-07-26 02:43:12,597 | INFO | app.nodes.file_loader | Attempting to load file: outputs/uploads\f38f05fffcf5.csv (Extension: .csv)
+2026-07-26 02:43:12,625 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 02:43:12,635 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-26 02:43:12,639 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-26 02:43:12,718 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 02:43:12,722 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-26 02:43:12,731 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-26 02:43:12,734 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-26 02:43:12,747 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-26 02:43:12,782 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-26 02:43:12,785 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 02:43:16,533 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:43:16,602 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-26 02:43:16,632 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 02:43:16,660 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 02:43:16,716 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 02:43:17,136 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 02:43:18,559 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-26 02:43:19,878 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-26 02:43:20,804 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-26 02:43:21,781 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-26 02:43:22,837 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-26 02:43:23,007 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 02:43:24,587 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-26 02:43:24,587 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-26 02:43:27,583 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:43:31,322 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:43:31,328 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 02:43:34,429 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:43:34,435 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 02:43:36,583 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_b2a3e8c6.pdf
+2026-07-26 02:43:36,594 | INFO | app.api.jobs | Job f38f05fffcf5: pipeline completed successfully
+2026-07-26 02:45:09,472 | INFO | app.api.jobs | Job 12c107da9195: saved upload 'Advertising And Sales.csv' to outputs/uploads\12c107da9195.csv
+2026-07-26 02:45:09,472 | INFO | app.main | Job 12c107da9195: upload accepted, pipeline queued
+2026-07-26 02:45:09,475 | INFO | app.api.jobs | Job 12c107da9195: pipeline started
+2026-07-26 02:45:09,747 | INFO | app.nodes.file_loader | Attempting to load file: outputs/uploads\12c107da9195.csv (Extension: .csv)
+2026-07-26 02:45:09,755 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 02:45:09,758 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-26 02:45:09,760 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-26 02:45:09,774 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 02:45:09,778 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-26 02:45:09,786 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-26 02:45:09,790 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-26 02:45:09,796 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-26 02:45:09,838 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-26 02:45:09,841 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 02:45:11,937 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:45:11,940 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 3 analyses and 5 charts
+2026-07-26 02:45:11,955 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 02:45:11,958 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 02:45:12,077 | INFO | app.nodes.statistics | Statistics Node completed — produced 3 analyses (0 unsupported).
+2026-07-26 02:45:12,668 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-26 02:45:13,369 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-26 02:45:14,078 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-26 02:45:15,047 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-26 02:45:16,242 | INFO | app.nodes.visualization | Rendered chart [5]: correlation_heatmap -> outputs\charts\chart_5_correlation_heatmap.png
+2026-07-26 02:45:16,242 | INFO | app.nodes.visualization | Visualization Node completed — 5 generated, 0 failed.
+2026-07-26 02:45:19,241 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:45:22,642 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:45:22,646 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 02:45:24,836 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:45:24,841 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 02:45:26,598 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_ce67b293.pdf
+2026-07-26 02:45:26,611 | INFO | app.api.jobs | Job 12c107da9195: pipeline completed successfully
+2026-07-26 02:51:08,912 | INFO | app.api.jobs | Job feb436783df3: saved upload 'Sales-Export_2019-2020.csv' to outputs/uploads\feb436783df3.csv
+2026-07-26 02:51:08,912 | INFO | app.main | Job feb436783df3: upload accepted, pipeline queued
+2026-07-26 02:51:08,917 | INFO | app.api.jobs | Job feb436783df3: pipeline started
+2026-07-26 02:51:09,336 | INFO | app.nodes.file_loader | Attempting to load file: outputs/uploads\feb436783df3.csv (Extension: .csv)
+2026-07-26 02:51:09,365 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 02:51:09,536 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-26 02:51:09,537 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-26 02:51:09,538 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-26 02:51:09,565 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 02:51:09,567 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-26 02:51:09,612 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-26 02:51:09,615 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-26 02:51:09,660 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-26 02:51:09,661 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 02:51:12,313 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:51:12,355 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-26 02:51:12,368 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 02:51:12,472 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 02:51:12,506 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 02:51:12,762 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 02:51:13,533 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 02:51:14,363 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 02:51:15,184 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 02:51:15,604 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 02:51:16,376 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-26 02:51:17,218 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 02:51:17,219 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-26 02:51:19,819 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:51:22,441 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:51:22,444 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 02:51:24,022 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 02:51:24,038 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 02:51:25,495 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_499d48e8.pdf
+2026-07-26 02:51:25,507 | INFO | app.api.jobs | Job feb436783df3: pipeline completed successfully
+2026-07-26 04:11:29,073 | INFO | app.api.jobs | Job e7c1112aef33: saved upload 'Advertising And Sales.csv' to outputs/uploads\e7c1112aef33.csv
+2026-07-26 04:11:29,074 | INFO | app.main | Job e7c1112aef33: upload accepted, pipeline queued
+2026-07-26 04:11:29,077 | INFO | app.api.jobs | Job e7c1112aef33: pipeline started
+2026-07-26 04:11:29,465 | INFO | app.nodes.file_loader | Attempting to load file: outputs/uploads\e7c1112aef33.csv (Extension: .csv)
+2026-07-26 04:11:29,507 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 04:11:29,526 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-26 04:11:29,528 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-26 04:11:29,557 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 04:11:29,560 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-26 04:11:29,569 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-26 04:11:29,571 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-26 04:11:29,584 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-26 04:11:29,611 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-26 04:11:29,614 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 04:11:32,908 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 04:11:32,955 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 3 analyses and 5 charts
+2026-07-26 04:11:32,964 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 04:11:32,975 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 04:11:32,991 | INFO | app.nodes.statistics | Statistics Node completed — produced 3 analyses (0 unsupported).
+2026-07-26 04:11:33,227 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 04:11:33,924 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-26 04:11:34,592 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-26 04:11:35,179 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-26 04:11:35,651 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-26 04:11:36,403 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-26 04:11:36,419 | INFO | app.nodes.visualization | Visualization Node completed — 5 generated, 0 failed.
+2026-07-26 04:11:38,357 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 04:11:40,889 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 04:11:40,892 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 04:11:42,397 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 04:11:42,400 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 04:11:43,374 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_87b1aea4.pdf
+2026-07-26 04:11:43,381 | INFO | app.api.jobs | Job e7c1112aef33: pipeline completed successfully

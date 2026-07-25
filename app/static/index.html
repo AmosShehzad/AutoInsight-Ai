@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoInsight AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>AutoInsight AI</h1>
+        <p class="subtitle">Upload a dataset — get a cleaned dataset, EDA, and an executive PDF report</p>
+    </header>
+
+    <main>
+
+        <!-- STEP 1: Upload -->
+        <section id="upload-section" class="card">
+            <h2>1. Upload Your Dataset</h2>
+            <p class="hint">Accepts .csv, .xlsx, .xls</p>
+
+            <div id="drop-zone" class="drop-zone">
+                <input type="file" id="file-input" accept=".csv,.xlsx,.xls" hidden>
+                <p id="drop-zone-text">Drag & drop a file here, or click to browse</p>
+            </div>
+
+            <button id="upload-btn" disabled>Analyze Dataset</button>
+            <p id="upload-error" class="error-text"></p>
+        </section>
+
+        <!-- STEP 2: Progress (hidden until upload starts) -->
+        <section id="progress-section" class="card hidden">
+            <h2>2. Analysis in Progress</h2>
+
+            <div class="progress-bar-outer">
+                <div id="progress-bar-inner" class="progress-bar-inner"></div>
+            </div>
+            <p id="progress-percent-text">0%</p>
+
+            <ul id="pipeline-stages" class="pipeline-stages">
+                <!-- filled in by JavaScript -->
+            </ul>
+
+            <p id="status-message" class="hint"></p>
+        </section>
+
+        <!-- STEP 3: Results (hidden until job completes) -->
+        <section id="results-section" class="card hidden">
+            <div class="results-icon">✓</div>
+            <h2>Your Report Is Ready</h2>
+            <p class="hint">Analysis complete — download your files below.</p>
+            <div class="results-buttons">
+                <button id="download-report-btn" class="btn btn-primary">Download PDF Report</button>
+                <button id="download-data-btn" class="btn btn-secondary">Download Cleaned Data (CSV)</button>
+            </div>
+            <p class="download-note">Files will be saved to your device's default Downloads folder.</p>
+            <button id="start-over-btn" class="btn btn-text">Analyze Another Dataset</button>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Built with LangGraph &middot; FastAPI &middot; ReportLab</p>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

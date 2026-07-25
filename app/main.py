@@ -1,9 +1,10 @@
 import os
 import re
+import pandas as pd
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-import pandas as pd
+from fastapi.staticfiles import StaticFiles
 
 from app.api.jobs import save_uploaded_file, run_job, get_job_status
 from app.graph import build_graph
@@ -18,11 +19,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Serves everything in app/static/ at the URL path /static/...
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 # Enable Cross-Origin Resource Sharing (CORS) for frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Tighten to specific frontend origin in production
-    allow_credentials=True,
+    allow_credentials=False,  # Spec-compliant with wildcard origins
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -46,8 +50,14 @@ def _validate_job_id(job_id: str) -> None:
         )
 
 
-@app.get("/")
-def read_root():
+@app.get("/", include_in_schema=False)
+def serve_frontend():
+    """Serves the frontend's index.html when someone visits the root URL."""
+    return FileResponse("app/static/index.html")
+
+
+@app.get("/health")
+def health_check():
     """Simple health-check endpoint — confirms the API is running at all."""
     return {"message": "AutoInsight AI API is running.", "docs": "/docs"}
 
@@ -117,11 +127,16 @@ def check_status(job_id: str):
     try:
         status = get_job_status(job_id)
     except Exception as e:
-        logger.error(f"Error fetching status for job {job_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="An internal error occurred while checking job status.",
-        )
+        logger.error(f"Status check failed for job {job_id}: {e}")
+        # Return a "still processing, try again" response instead of a hard 500 —
+        # a transient DB hiccup shouldn't look like a permanent failure to the user.
+        return {
+            "job_id": job_id,
+            "status": "processing",
+            "current_stage": None,
+            "progress_percent": 0,
+            "note": "Status temporarily unavailable, retrying...",
+        }
 
     if status["status"] == "not_found":
         raise HTTPException(status_code=404, detail=f"No job found with id '{job_id}'.")

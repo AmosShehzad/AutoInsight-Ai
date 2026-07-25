@@ -10,6 +10,7 @@ import numpy as np
 
 from app.logger import get_logger
 from app.schemas.state import GraphState
+from app.node_wrapper import node_error_boundary
 
 logger = get_logger(__name__)
 
@@ -34,6 +35,28 @@ def _sanitize_val(val: Any) -> Optional[Any]:
     return str(val)
 
 
+def _is_identifier_column(df: pd.DataFrame, col: str) -> bool:
+    """
+    Detects columns that are numeric but are actually ROW IDENTIFIERS,
+    not real business measurements — e.g. 'Id', 'ID', 'RowNumber',
+    or any column where every value is unique (nunique == row count).
+    These should NEVER be averaged, correlated, or summed — doing so
+    produces meaningless numbers (like 'average customer ID = 100.5').
+    """
+    name_lower = col.lower().replace("_", "").replace(" ", "")
+    id_name_hints = ["id", "index", "rownumber", "recordid", "uuid", "key"]
+    looks_like_id_name = any(hint in name_lower for hint in id_name_hints)
+    
+    is_fully_unique = len(df) > 0 and df[col].nunique() == len(df)
+    is_sequential = False
+    if is_fully_unique and pd.api.types.is_integer_dtype(df[col]):
+        sorted_vals = df[col].sort_values().reset_index(drop=True)
+        is_sequential = (sorted_vals.diff().dropna() == 1).all()
+        
+    return looks_like_id_name or is_sequential
+
+
+@node_error_boundary("profiling")
 def profile_data_node(state: GraphState) -> GraphState:
     """
     LangGraph Node: Profiling node that reads the cleaned dataframe
@@ -52,8 +75,16 @@ def profile_data_node(state: GraphState) -> GraphState:
     total_rows, total_cols = df.shape
     logger.info(f"Profiling Node started — {total_rows} rows, {total_cols} columns")
 
-    # Column classification
-    numeric_cols = [str(col) for col in df.select_dtypes(include="number").columns]
+    # -----------------------------------------------------------------------
+    # Column Classification & Identifier Detection
+    # -----------------------------------------------------------------------
+    all_numeric_cols = [str(col) for col in df.select_dtypes(include="number").columns]
+    identifier_cols = [c for c in all_numeric_cols if _is_identifier_column(df, c)]
+    numeric_cols = [c for c in all_numeric_cols if c not in identifier_cols]
+
+    if identifier_cols:
+        logger.info(f"Excluded identifier columns from numeric analysis: {identifier_cols}")
+
     categorical_cols = [str(col) for col in df.select_dtypes(include=["object", "string", "category"]).columns]
     datetime_cols = [
         str(col) for col in df.columns if pd.api.types.is_datetime64_any_dtype(df[col])
@@ -144,6 +175,7 @@ def profile_data_node(state: GraphState) -> GraphState:
         "numeric_columns": numeric_cols,
         "categorical_columns": categorical_cols,
         "datetime_columns": datetime_cols,
+        "identifier_columns": identifier_cols,
         "numeric_stats": numeric_stats,
         "categorical_stats": categorical_stats,
         "datetime_stats": datetime_stats,
@@ -151,7 +183,8 @@ def profile_data_node(state: GraphState) -> GraphState:
 
     logger.info(
         f"Profiling complete — Analyzed {len(numeric_cols)} numeric, "
-        f"{len(categorical_cols)} categorical, and {len(datetime_cols)} datetime column(s)."
+        f"{len(categorical_cols)} categorical, {len(datetime_cols)} datetime column(s), "
+        f"and excluded {len(identifier_cols)} identifier column(s)."
     )
 
     return {**state, "profile": profile}

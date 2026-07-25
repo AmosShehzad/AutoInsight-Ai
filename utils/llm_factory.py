@@ -1,27 +1,21 @@
-import os
-from dotenv import load_dotenv
+"""
+Central LLM factory — every agent (Planning, Insight, Critic) builds its
+ChatGroq instance through this ONE function, instead of each file
+constructing ChatGroq(...) independently. This is what makes it possible
+to change the LLM provider/model in exactly one place later.
+"""
 from langchain_groq import ChatGroq
-from langchain_ollama import ChatOllama
+from app.config import config
 
-load_dotenv()
 
-def get_llm(temperature: float = 0.2):
-    """Returns the appropriate LLM instance based on the LLM_PROVIDER environment variable."""
-    provider = os.getenv("LLM_PROVIDER", "groq").lower()
-
-    if provider == "ollama":
-        model_name = os.getenv("OLLAMA_MODEL", "phi3")
-        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        return ChatOllama(
-            model=model_name,
-            base_url=base_url,
-            temperature=temperature
-        )
-    elif provider == "groq":
-        model_name = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
-        return ChatGroq(
-            model=model_name,
-            temperature=temperature
-        )
-    else:
-        raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")
+def get_llm(model: str = None, temperature: float = 0.2):
+    """
+    Returns a configured ChatGroq instance.
+    model: defaults to config.LLM_MODEL if not passed.
+    temperature: caller-specified per agent (Planning/Insight/Critic use
+    different values), no default assumed here.
+    """
+    return ChatGroq(
+        model=model or config.LLM_MODEL,
+        temperature=temperature,
+    )

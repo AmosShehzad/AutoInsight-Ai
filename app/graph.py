@@ -3,14 +3,15 @@ import uuid
 import sqlite3
 from pathlib import Path
 
-# Add project root to Python path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 
+from app.config import config
 from app.schemas.state import GraphState
+from app.node_wrapper import NodeExecutionError
 from app.nodes.file_loader import load_file_node
 from app.nodes.validation import validate_data_node
 from app.nodes.cleaning import clean_data_node
@@ -19,10 +20,11 @@ from app.nodes.planning_agent import planning_agent_node
 from app.nodes.statistics import statistics_node
 from app.nodes.visualization import visualization_node
 from app.nodes.insight_agent import insight_agent_node
+from app.nodes.narrative_agent import narrative_agent_node
 from app.nodes.critic_agent import critic_agent_node
 from app.nodes.report_generator import report_generator_node
 
-DB_PATH = "checkpoints.sqlite"
+DB_PATH = config.DB_PATH
 
 
 class PipelineExecutionError(Exception):
@@ -33,17 +35,19 @@ class PipelineExecutionError(Exception):
         super().__init__(f"[{stage}] {message}")
 
 
-def run_pipeline_safely(app_graph, initial_state: dict, config: dict) -> dict:
+def run_pipeline_safely(app_graph, initial_state: dict, config_dict: dict) -> dict:
     """
-    Wraps graph.invoke() with a friendly error boundary. Instead of a raw
-    traceback reaching the end user, returns a clear stage + message.
-    Use this in FastAPI (Day 11) instead of calling .invoke() directly.
+    Wraps graph.invoke() with a friendly error boundary. NodeExecutionError
+    (raised by @node_error_boundary inside each node) is tagged with the
+    REAL node name at the point of failure — no guessing from exception
+    module names.
     """
     try:
-        return app_graph.invoke(initial_state, config=config)
+        return app_graph.invoke(initial_state, config=config_dict)
+    except NodeExecutionError as e:
+        raise PipelineExecutionError(stage=e.node_name, message=str(e.original_exception))
     except Exception as e:
-        stage = type(e).__module__.split(".")[-1] if hasattr(type(e), "__module__") else "unknown"
-        raise PipelineExecutionError(stage=stage, message=str(e))
+        raise PipelineExecutionError(stage="graph", message=str(e))
 
 
 def _route_after_critic(state: GraphState) -> str:
@@ -69,6 +73,7 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_node("statistics", statistics_node)
     graph.add_node("visualization", visualization_node)
     graph.add_node("insight_agent", insight_agent_node)
+    graph.add_node("narrative_agent", narrative_agent_node)
     graph.add_node("critic_agent", critic_agent_node)
     graph.add_node("increment_revision", _increment_revision_count)
     graph.add_node("report_generator", report_generator_node)
@@ -88,10 +93,10 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_edge("statistics", "insight_agent")
     graph.add_edge("visualization", "insight_agent")
 
-    # Insight Agent -> Critic Agent
-    graph.add_edge("insight_agent", "critic_agent")
+    # Sequential narrative & evaluation flow
+    graph.add_edge("insight_agent", "narrative_agent")
+    graph.add_edge("narrative_agent", "critic_agent")
 
-    # Reflection loop router
     graph.add_conditional_edges(
         "critic_agent",
         _route_after_critic,
@@ -113,14 +118,13 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
 
 if __name__ == "__main__":
     app_graph = build_graph()
-    # Generate unique thread ID for each run to avoid reading stale/corrupted state
     run_id = f"demo-run-{uuid.uuid4().hex[:6]}"
-    config = {"configurable": {"thread_id": run_id}}
-    
+    cfg = {"configurable": {"thread_id": run_id}}
+
     result = run_pipeline_safely(
         app_graph,
         {"file_path": "sample_data/Sales-Export_2019-2020.csv"},
-        config=config,
+        cfg,
     )
     print("Revision count:", result.get("revision_count", 0))
     print("Critic feedback:", result.get("critic_feedback"))

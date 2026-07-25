@@ -1,5 +1,7 @@
 import os
+import re
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import pandas as pd
 
@@ -9,15 +11,39 @@ from app.logger import get_logger
 
 logger = get_logger(__name__)
 
-# This single line creates the whole FastAPI application object.
-# Everything below (@app.get, @app.post) attaches endpoints to it.
+# FastAPI application initialization
 app = FastAPI(
     title="AutoInsight AI API",
     description="Upload a dataset, get back a cleaned dataset, EDA, and an executive PDF report.",
     version="1.0.0",
 )
 
+# Enable Cross-Origin Resource Sharing (CORS) for frontend integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Tighten to specific frontend origin in production
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+
 ALLOWED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
+MAX_UPLOAD_SIZE_MB = 50
+
+# Strict 12-char hex pattern matching uuid.uuid4().hex[:12] from save_uploaded_file
+JOB_ID_PATTERN = re.compile(r"^[a-f0-9]{12}$")
+
+
+def _validate_job_id(job_id: str) -> None:
+    """
+    Validates job_id shape to prevent Path Traversal attacks (e.g. '../../etc/passwd').
+    Raises HTTP 400 Bad Request if the job_id doesn't strictly match expected format.
+    """
+    if not job_id or not JOB_ID_PATTERN.match(job_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid job_id format.",
+        )
 
 
 @app.get("/")
@@ -35,21 +61,40 @@ async def upload_dataset(background_tasks: BackgroundTasks, file: UploadFile = F
     """
     extension = os.path.splitext(file.filename)[1].lower()
     if extension not in ALLOWED_EXTENSIONS:
-        # HTTPException is FastAPI's way of returning a proper error
-        # response (with a status code) instead of a Python crash.
         raise HTTPException(
             status_code=400,
             detail=f"Unsupported file type '{extension}'. Only .csv, .xlsx, .xls are allowed.",
         )
 
-    file_bytes = await file.read()   # 'await' because reading an uploaded file is an async operation
+    try:
+        file_bytes = await file.read()
+    except Exception as e:
+        logger.error(f"Failed to read uploaded file '{file.filename}': {e}")
+        raise HTTPException(
+            status_code=400,
+            detail="Could not read uploaded file content.",
+        )
+
+    size_mb = len(file_bytes) / (1024 * 1024)
+    if size_mb > MAX_UPLOAD_SIZE_MB:
+        raise HTTPException(
+            status_code=413,  # Payload Too Large
+            detail=f"File too large ({size_mb:.1f}MB). Maximum allowed is {MAX_UPLOAD_SIZE_MB}MB.",
+        )
+
     if len(file_bytes) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
-    job_id, saved_path = save_uploaded_file(file_bytes, file.filename)
+    try:
+        job_id, saved_path = save_uploaded_file(file_bytes, file.filename)
+    except Exception as e:
+        logger.error(f"Failed to save upload '{file.filename}': {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while saving the uploaded file.",
+        )
 
-    # add_task schedules run_job to execute AFTER this function returns
-    # its response — this is what makes the upload feel instant.
+    # Schedules run_job to execute in background after response returns
     background_tasks.add_task(run_job, job_id, saved_path)
 
     logger.info(f"Job {job_id}: upload accepted, pipeline queued")
@@ -65,10 +110,19 @@ def check_status(job_id: str):
     """
     Reports current progress for a job — which pipeline stage it's on,
     how many stages are done, and whether it's finished. Reads directly
-    from LangGraph's checkpoint, so this works WHILE the job is still
-    running in the background.
+    from LangGraph's checkpoint.
     """
-    status = get_job_status(job_id)
+    _validate_job_id(job_id)
+
+    try:
+        status = get_job_status(job_id)
+    except Exception as e:
+        logger.error(f"Error fetching status for job {job_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while checking job status.",
+        )
+
     if status["status"] == "not_found":
         raise HTTPException(status_code=404, detail=f"No job found with id '{job_id}'.")
     return status
@@ -77,11 +131,19 @@ def check_status(job_id: str):
 @app.get("/report/{job_id}")
 def download_report(job_id: str):
     """
-    Serves the finished PDF report for download. Returns a clear 404 if
-    the job doesn't exist, and a clear 409 (conflict) if the job exists
-    but hasn't finished yet — never a confusing missing-file error.
+    Serves the finished PDF report for download. Returns 404 if missing,
+    or 409 Conflict if the job is still running.
     """
-    status = get_job_status(job_id)
+    _validate_job_id(job_id)
+
+    try:
+        status = get_job_status(job_id)
+    except Exception as e:
+        logger.error(f"Error checking status during report request for job {job_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while retrieving report information.",
+        )
 
     if status["status"] == "not_found":
         raise HTTPException(status_code=404, detail=f"No job found with id '{job_id}'.")
@@ -93,10 +155,9 @@ def download_report(job_id: str):
 
     report_path = status["report_path"]
     if not report_path or not os.path.exists(report_path):
+        logger.error(f"Report file missing on server for job {job_id} at path '{report_path}'")
         raise HTTPException(status_code=500, detail="Report file is missing on the server.")
 
-    # FileResponse streams the actual file bytes back as the HTTP response,
-    # with the right headers so a browser/client treats it as a downloadable file.
     return FileResponse(
         path=report_path,
         media_type="application/pdf",
@@ -107,14 +168,21 @@ def download_report(job_id: str):
 @app.get("/cleaned-data/{job_id}")
 def download_cleaned_data(job_id: str):
     """
-    Serves the cleaned dataset (from state['cleaned_dataframe']) as a
-    downloadable CSV file. Reads the dataframe straight from the
-    checkpoint, converts it to CSV on the fly — no separate file needed
-    on disk for this.
+    Serves the cleaned dataset as a downloadable CSV file by reading
+    state['cleaned_dataframe'] directly from the state snapshot.
     """
-    graph = build_graph()
-    config = {"configurable": {"thread_id": job_id}}
-    state_snapshot = graph.get_state(config)
+    _validate_job_id(job_id)
+
+    try:
+        graph = build_graph()
+        config = {"configurable": {"thread_id": job_id}}
+        state_snapshot = graph.get_state(config)
+    except Exception as e:
+        logger.error(f"Error accessing graph checkpoint for job {job_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while retrieving cleaned dataset.",
+        )
 
     if state_snapshot is None or not state_snapshot.values:
         raise HTTPException(status_code=404, detail=f"No job found with id '{job_id}'.")
@@ -126,11 +194,18 @@ def download_cleaned_data(job_id: str):
             detail="Cleaned data isn't ready yet — the pipeline hasn't reached the Cleaning step.",
         )
 
-    output_path = f"outputs/uploads/{job_id}_cleaned.csv"
-    cleaned_df.to_csv(output_path, index=False)
+    try:
+        output_path = f"outputs/uploads/{job_id}_cleaned.csv"
+        cleaned_df.to_csv(output_path, index=False)
 
-    return FileResponse(
-        path=output_path,
-        media_type="text/csv",
-        filename=f"autoinsight_cleaned_{job_id}.csv",
-    )
+        return FileResponse(
+            path=output_path,
+            media_type="text/csv",
+            filename=f"autoinsight_cleaned_{job_id}.csv",
+        )
+    except Exception as e:
+        logger.error(f"Error exporting cleaned dataset to CSV for job {job_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while generating the CSV file.",
+        )

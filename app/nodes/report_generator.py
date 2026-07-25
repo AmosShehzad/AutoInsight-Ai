@@ -5,7 +5,7 @@ into a polished, multi-page corporate PDF report.
 """
 
 import os
-import uuid
+import uuid as uuid_lib
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
@@ -25,11 +25,15 @@ from reportlab.platypus import (
 )
 
 from app.logger import get_logger
+from app.node_wrapper import node_error_boundary
 from app.schemas.state import GraphState
+from app.config import config
+
+REPORTS_DIR = config.REPORTS_DIR
+CHARTS_DIR = config.CHARTS_DIR
 
 logger = get_logger(__name__)
 
-REPORTS_DIR = "outputs/reports"
 
 # ---------------------------------------------------------------------------
 # THEME — Centralized design system for corporate report styling
@@ -53,8 +57,13 @@ class ReportGeneratorError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# Formatting & Page Mechanics
+# Helpers
 # ---------------------------------------------------------------------------
+
+def _safe_text(text: Any) -> str:
+    """Safely converts any input into a string to prevent rendering errors."""
+    return str(text) if text is not None else ""
+
 
 def _format_number(value: Any) -> str:
     """Formats raw numerical outputs into human-readable formatted strings."""
@@ -158,68 +167,75 @@ def _build_styles() -> Any:
 
 
 # ---------------------------------------------------------------------------
-# KPI Cards Builder
+# KPI Cards & Deterministic Computations Builder
 # ---------------------------------------------------------------------------
 
-def _extract_kpi_highlights(statistics: dict) -> List[Tuple[str, str]]:
-    """Extracts up to 4 key performance indicators from statistical results."""
+def _compute_business_health_score(validation_report: dict, statistics: dict) -> int:
+    """
+    Deterministic 0-100 composite score. NOT an LLM guess — pure math
+    from real numbers, so it's always accurate and reproducible.
+    """
+    val_data = validation_report or {}
+    stats_data = statistics or {}
+    score = val_data.get("health_score", 100)
+
+    results = stats_data.get("results", {})
+    outliers = results.get("outlier_detection", {})
+    total_outliers = sum(v.get("outlier_count", 0) for v in outliers.values() if isinstance(v, dict))
+    if total_outliers > 0:
+        score -= min(total_outliers * 2, 15)  # cap penalty at 15 points
+
+    return max(0, min(100, int(score)))
+
+
+def _find_strongest_predictor(statistics: dict) -> str:
+    """Finds the column with the highest absolute correlation to any other column."""
+    stats_data = statistics or {}
+    corr = stats_data.get("results", {}).get("correlation_analysis", {})
+    if not corr or "skipped_reason" in corr:
+        return "N/A"
+
+    best_pair, best_val = None, 0
+    for col_a, row in corr.items():
+        if isinstance(row, dict):
+            for col_b, val in row.items():
+                if col_a != col_b and isinstance(val, (int, float)) and abs(val) > best_val:
+                    best_val = abs(val)
+                    best_pair = (col_a, col_b)
+
+    return best_pair[0].replace("_", " ").title() if best_pair else "N/A"
+
+
+def _extract_kpi_highlights(statistics: dict, validation_report: dict) -> list:
+    """Extended KPI set: Business Health, Data Reliability, Strongest Predictor, plus existing cards."""
     kpis = []
-    results = statistics.get("results", {}) if isinstance(statistics, dict) else {}
+    val_data = validation_report or {}
 
-    # 1. Trend Analysis KPI
     try:
-        trend = results.get("trend_analysis", {})
-        if trend and "skipped_reason" not in trend:
-            first_metric = next(iter(trend.values()), None)
-            if first_metric and first_metric.get("percent_change") is not None:
-                metric_name = next(iter(trend.keys()))
-                change = first_metric["percent_change"]
-                direction = "▲" if change >= 0 else "▼"
-                kpis.append((f"{metric_name.replace('_', ' ').title()} Growth", f"{direction} {abs(change):.1f}%"))
-    except Exception as e:
-        logger.debug(f"KPI trend extraction skipped: {e}")
+        health = _compute_business_health_score(val_data, statistics)
+        kpis.append(("Business Health", f"{health}/100"))
+    except Exception:
+        pass
 
-    # 2. Descriptive Stats KPI
     try:
-        desc = results.get("descriptive_stats", {})
-        if desc and "skipped_reason" not in desc:
-            first_col = next(iter(desc.keys()), None)
-            if first_col and desc[first_col].get("sum") is not None:
-                total_val = desc[first_col]["sum"]
-                kpis.append((f"Total {first_col.replace('_', ' ').title()}", f"{total_val:,.0f}"))
-            elif first_col and desc[first_col].get("mean") is not None:
-                avg = desc[first_col]["mean"]
-                kpis.append((f"Avg {first_col.replace('_', ' ').title()}", f"{avg:,.1f}"))
-    except Exception as e:
-        logger.debug(f"KPI descriptive extraction skipped: {e}")
+        reliability = val_data.get("health_score", 100)
+        kpis.append(("Data Reliability", f"{reliability:.0f}%"))
+    except Exception:
+        pass
 
-    # 3. Correlation KPI
     try:
-        corr = results.get("correlation_analysis", {})
-        if corr and "skipped_reason" not in corr:
-            cols = list(corr.keys())
-            if len(cols) >= 2:
-                strongest = corr[cols[0]].get(cols[1])
-                if strongest is not None:
-                    kpis.append(("Correlation Strength", f"{strongest:.2f}"))
-    except Exception as e:
-        logger.debug(f"KPI correlation extraction skipped: {e}")
+        predictor = _find_strongest_predictor(statistics)
+        kpis.append(("Strongest Predictor", predictor))
+    except Exception:
+        pass
 
-    # 4. Outlier KPI
     try:
+        results = (statistics or {}).get("results", {})
         outliers = results.get("outlier_detection", {})
-        if outliers and "skipped_reason" not in outliers:
-            total_outliers = sum(v.get("outlier_count", 0) for v in outliers.values() if isinstance(v, dict))
-            kpis.append(("Outliers Detected", str(total_outliers)))
-    except Exception as e:
-        logger.debug(f"KPI outlier extraction skipped: {e}")
-
-    # Fallback if no specific metrics were found
-    if not kpis:
-        try:
-            kpis.append(("Analyses Completed", str(len(results))))
-        except Exception:
-            pass
+        total_outliers = sum(v.get("outlier_count", 0) for v in outliers.values() if isinstance(v, dict))
+        kpis.append(("Outliers Detected", str(total_outliers)))
+    except Exception:
+        pass
 
     return kpis[:4]
 
@@ -230,7 +246,10 @@ def _build_kpi_cards(kpis: List[Tuple[str, str]], styles: Any) -> List[Any]:
         return []
         
     elements = []
-    row_size = 3
+    row_size = min(4, len(kpis))
+    if row_size == 0:
+        return []
+        
     for i in range(0, len(kpis), row_size):
         chunk = kpis[i:i + row_size]
         card_width = (6.3 / len(chunk)) * inch
@@ -259,30 +278,36 @@ def _build_kpi_cards(kpis: List[Tuple[str, str]], styles: Any) -> List[Any]:
 # Section Builders
 # ---------------------------------------------------------------------------
 
-def _build_cover_page(profile: dict, styles: Any) -> List[Any]:
-    """Constructs a formal title cover page."""
+def _build_cover_page(profile: dict, styles) -> list:
+    """Constructs a formal title cover page with robust metadata."""
     elements = []
-    elements.append(Spacer(1, 1.8 * inch))
-    
+    profile_data = profile or {}
+    elements.append(Spacer(1, 1.6 * inch))
+
     bar = Table([[""]], colWidths=[1.4 * inch], rowHeights=[0.08 * inch])
     bar.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), THEME["gold"])]))
     elements.append(bar)
     elements.append(Spacer(1, 0.25 * inch))
-    
+
     elements.append(Paragraph("AutoInsight AI", ParagraphStyle(
-        name="CoverTitle", fontSize=32, leading=36, fontName="Helvetica-Bold", textColor=THEME["navy"])))
-    
+            name="CoverTitle", fontSize=32, leading=38, fontName="Helvetica-Bold", textColor=THEME["navy"], spaceAfter=6)))
     elements.append(Paragraph("Automated Data Analysis Report", ParagraphStyle(
-        name="CoverSubtitle", fontSize=14, leading=16, fontName="Helvetica", textColor=THEME["grey_mid"], spaceBefore=8)))
-    
-    elements.append(Spacer(1, 0.6 * inch))
+            name="CoverSubtitle", fontSize=14, leading=18, fontName="Helvetica", textColor=THEME["grey_mid"])))
+
+    elements.append(Spacer(1, 0.5 * inch))
     timestamp = datetime.now().strftime("%B %d, %Y")
-    elements.append(Paragraph(f"Prepared on {timestamp}", styles["Small"]))
-    
-    elements.append(Paragraph(
-        f"Dataset: {profile.get('row_count', 'N/A')} rows &middot; {profile.get('column_count', 'N/A')} columns",
-        styles["Small"]))
-    
+    report_id = f"AI-{uuid_lib.uuid4().hex[:8].upper()}"
+
+    meta_lines = [
+        f"Report ID: {report_id}",
+        f"Prepared: {timestamp}",
+        f"Dataset: {profile_data.get('row_count', 'N/A')} rows &middot; {profile_data.get('column_count', 'N/A')} columns",
+        "AutoInsight AI Engine v1.0",
+        "CONFIDENTIAL — Prepared for internal business use only.",
+    ]
+    for line in meta_lines:
+        elements.append(Paragraph(line, styles["Small"]))
+
     elements.append(PageBreak())
     return elements
 
@@ -312,7 +337,7 @@ def _build_title_section(styles: Any) -> List[Any]:
 def _build_executive_summary(insights: List[str], plan: dict, styles: Any) -> List[Any]:
     """Builds the Executive Summary section."""
     elements = []
-    elements.append(Paragraph("Executive Summary", styles["SectionHeading"]))
+    elements.append(Paragraph("Execution Plan Summary", styles["SectionHeading"]))
     elements.append(_section_divider())
     elements.append(Spacer(1, 0.1 * inch))
 
@@ -322,6 +347,7 @@ def _build_executive_summary(insights: List[str], plan: dict, styles: Any) -> Li
         elements.append(Spacer(1, 0.12 * inch))
 
     if insights:
+        elements.append(Paragraph("Core Insights", styles["SubHeading"]))
         rows = [[Paragraph(f"<b>{i+1}.</b> {text}", styles["BulletBody"])] for i, text in enumerate(insights)]
         insight_table = Table(rows, colWidths=[6.3 * inch])
         insight_table.setStyle(TableStyle([
@@ -342,6 +368,7 @@ def _build_executive_summary(insights: List[str], plan: dict, styles: Any) -> Li
 def _build_executive_snapshot(profile: dict, plan: dict, statistics: dict, validation_report: dict, styles: Any) -> List[Any]:
     """Builds a compact boardroom-style snapshot with the most important dataset facts."""
     results = statistics.get("results", {}) if isinstance(statistics, dict) else {}
+    profile_data = profile or {}
 
     snapshot_rows = [[
         Paragraph("Dimension", styles["TableHeader"]),
@@ -351,7 +378,7 @@ def _build_executive_snapshot(profile: dict, plan: dict, statistics: dict, valid
 
     snapshot_rows.append([
         Paragraph("Dataset size", styles["TableCell"]),
-        Paragraph(f"{profile.get('row_count', 'N/A')} rows x {profile.get('column_count', 'N/A')} columns", styles["TableCell"]),
+        Paragraph(f"{profile_data.get('row_count', 'N/A')} rows x {profile_data.get('column_count', 'N/A')} columns", styles["TableCell"]),
         Paragraph("Defines the scope and confidence of the analysis.", styles["TableCell"]),
     ])
 
@@ -460,7 +487,7 @@ def _build_key_findings_section(statistics: dict, insights: List[str], validatio
         else:
             findings.append(f"Source data quality is limited at <b>{health_score} / 100</b> and should be reviewed before major decisions.")
 
-    if insights:
+    if insights and len(insights) > 0:
         findings.append(f"Top generated insight: {insights[0]}")
 
     if not findings:
@@ -492,13 +519,14 @@ def _build_dataset_overview(profile: dict, styles: Any) -> List[Any]:
     elements.append(_section_divider())
     elements.append(Spacer(1, 0.1 * inch))
 
+    profile_data = profile or {}
     overview_data = [
         [Paragraph("Metric", styles["TableHeader"]), Paragraph("Value", styles["TableHeader"])],
-        [Paragraph("Total Rows", styles["TableCell"]), Paragraph(str(profile.get("row_count", "N/A")), styles["TableCell"])],
-        [Paragraph("Total Columns", styles["TableCell"]), Paragraph(str(profile.get("column_count", "N/A")), styles["TableCell"])],
-        [Paragraph("Numeric Columns", styles["TableCell"]), Paragraph(str(len(profile.get("numeric_columns", []))), styles["TableCell"])],
-        [Paragraph("Categorical Columns", styles["TableCell"]), Paragraph(str(len(profile.get("categorical_columns", []))), styles["TableCell"])],
-        [Paragraph("Datetime Columns", styles["TableCell"]), Paragraph(str(len(profile.get("datetime_columns", []))), styles["TableCell"])],
+        [Paragraph("Total Rows", styles["TableCell"]), Paragraph(str(profile_data.get("row_count", "N/A")), styles["TableCell"])],
+        [Paragraph("Total Columns", styles["TableCell"]), Paragraph(str(profile_data.get("column_count", "N/A")), styles["TableCell"])],
+        [Paragraph("Numeric Columns", styles["TableCell"]), Paragraph(str(len(profile_data.get("numeric_columns", []))), styles["TableCell"])],
+        [Paragraph("Categorical Columns", styles["TableCell"]), Paragraph(str(len(profile_data.get("categorical_columns", []))), styles["TableCell"])],
+        [Paragraph("Datetime Columns", styles["TableCell"]), Paragraph(str(len(profile_data.get("datetime_columns", []))), styles["TableCell"])],
     ]
 
     table = Table(overview_data, colWidths=[3.3 * inch, 2.3 * inch])
@@ -508,29 +536,87 @@ def _build_dataset_overview(profile: dict, styles: Any) -> List[Any]:
     return elements
 
 
-def _build_data_quality_section(validation_report: dict, cleaning_report: dict, styles: Any) -> List[Any]:
-    """Formats data governance, health score, and cleaning operational metrics."""
+def _build_data_reliability_checklist(validation_report: dict, cleaning_report: dict, styles) -> list:
+    """Deterministic pass/warn/fail checklist — every check computed from real numbers."""
     elements = []
-    elements.append(Paragraph("Data Quality & Governance", styles["SectionHeading"]))
+    elements.append(Paragraph("Data Reliability Checklist", styles["SectionHeading"]))
     elements.append(_section_divider())
     elements.append(Spacer(1, 0.1 * inch))
 
-    health_score = validation_report.get("health_score", "N/A")
-    elements.append(Paragraph(f"<b>Original Data Health Score:</b> {health_score} / 100", styles["Body"]))
-    elements.append(Spacer(1, 0.08 * inch))
+    val_data = validation_report or {}
+    clean_data = cleaning_report or {}
 
-    quality_data = [
-        [Paragraph("Check", styles["TableHeader"]), Paragraph("Result", styles["TableHeader"])],
-        [Paragraph("Missing Cells (original)", styles["TableCell"]), Paragraph(str(validation_report.get("missing_cells", "N/A")), styles["TableCell"])],
-        [Paragraph("Duplicate Rows (original)", styles["TableCell"]), Paragraph(str(validation_report.get("duplicate_rows", "N/A")), styles["TableCell"])],
-        [Paragraph("Duplicates Removed", styles["TableCell"]), Paragraph(str(cleaning_report.get("duplicates_removed", "N/A")), styles["TableCell"])],
-        [Paragraph("Rows After Cleaning", styles["TableCell"]), Paragraph(str(cleaning_report.get("rows_after_cleaning", "N/A")), styles["TableCell"])],
+    missing_pct = val_data.get("missing_percent", 0)
+    dup_count = val_data.get("duplicate_rows", 0)
+    health = val_data.get("health_score", 100)
+
+    checks = [
+        ("Missing Values", "PASS" if missing_pct < 5 else ("WARN" if missing_pct < 15 else "FAIL"),
+         f"{missing_pct:.1f}% missing"),
+        ("Duplicate Rows", "PASS" if dup_count == 0 else ("WARN" if dup_count < 10 else "FAIL"),
+         f"{dup_count} duplicate(s) found"),
+        ("Overall Data Health", "PASS" if health >= 85 else ("WARN" if health >= 60 else "FAIL"),
+         f"{health}/100"),
+        ("Cleaning Applied", "PASS", f"{clean_data.get('duplicates_removed', 0)} row(s) cleaned"),
     ]
 
-    table = Table(quality_data, colWidths=[3.3 * inch, 2.3 * inch])
+    status_colors = {"PASS": THEME["green"], "WARN": THEME["gold"], "FAIL": THEME["red"]}
+    rows = [[
+        Paragraph("Check", styles["TableHeader"]),
+        Paragraph("Status", styles["TableHeader"]),
+        Paragraph("Detail", styles["TableHeader"])
+    ]]
+    for name, status, detail in checks:
+        color = status_colors[status]
+        status_cell = Paragraph(f'<font color="{color}"><b>&#9679; {status}</b></font>', styles["TableCell"])
+        rows.append([
+            Paragraph(name, styles["TableCell"]),
+            status_cell,
+            Paragraph(_safe_text(detail), styles["TableCell"])
+        ])
+
+    table = Table(rows, colWidths=[2.2 * inch, 1.2 * inch, 2.9 * inch])
     table.setStyle(_default_table_style())
     elements.append(table)
-    elements.append(Spacer(1, 0.25 * inch))
+    elements.append(Spacer(1, 0.3 * inch))
+    return elements
+
+
+def _build_business_story_section(narrative: dict, styles) -> list:
+    elements = []
+    elements.append(Paragraph("Business Story", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+
+    narrative_data = narrative or {}
+    story_text = narrative_data.get("business_story", "")
+    elements.append(Paragraph(_safe_text(story_text), styles["Body"]))
+    elements.append(Spacer(1, 0.3 * inch))
+    return elements
+
+
+def _build_column_intelligence_section(narrative: dict, styles) -> list:
+    elements = []
+    elements.append(Paragraph("Column Intelligence", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+
+    narrative_data = narrative or {}
+    for col_info in narrative_data.get("column_intelligence", []):
+        if not isinstance(col_info, dict):
+            continue
+        elements.append(Paragraph(_safe_text(col_info.get("column", "")), styles["SubHeading"]))
+        rows = [
+            [Paragraph("<b>Purpose</b>", styles["TableCell"]), Paragraph(_safe_text(col_info.get("purpose", "")), styles["TableCell"])],
+            [Paragraph("<b>Business Interpretation</b>", styles["TableCell"]), Paragraph(_safe_text(col_info.get("business_interpretation", "")), styles["TableCell"])],
+            [Paragraph("<b>Risk Note</b>", styles["TableCell"]), Paragraph(_safe_text(col_info.get("risk_note", "")), styles["TableCell"])],
+        ]
+        table = Table(rows, colWidths=[1.8 * inch, 4.5 * inch])
+        table.setStyle(_default_table_style())
+        elements.append(table)
+        elements.append(Spacer(1, 0.15 * inch))
+
+    elements.append(Spacer(1, 0.15 * inch))
     return elements
 
 
@@ -568,7 +654,7 @@ def _build_statistics_section(statistics: dict, styles: Any) -> List[Any]:
     elements.append(_section_divider())
     elements.append(Spacer(1, 0.1 * inch))
 
-    results = statistics.get("results", {}) if isinstance(statistics, dict) else {}
+    results = (statistics or {}).get("results", {}) if isinstance(statistics, dict) else {}
     if not results:
         elements.append(Paragraph("No statistical analyses were completed.", styles["Body"]))
         return elements
@@ -622,10 +708,175 @@ def _build_statistics_section(statistics: dict, styles: Any) -> List[Any]:
     return elements
 
 
+def _build_relationship_analysis_section(statistics: dict, styles) -> list:
+    elements = []
+    elements.append(Paragraph("Relationship Analysis", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+
+    corr = (statistics or {}).get("results", {}).get("correlation_analysis", {})
+    if not corr or "skipped_reason" in corr:
+        elements.append(Paragraph("Not enough numeric columns for relationship analysis.", styles["Body"]))
+        return elements
+
+    seen_pairs = set()
+    relationships = []
+    for col_a, row in corr.items():
+        if isinstance(row, dict):
+            for col_b, val in row.items():
+                if col_a == col_b or not isinstance(val, (int, float)):
+                    continue
+                pair_key = tuple(sorted([col_a, col_b]))
+                if pair_key in seen_pairs:
+                    continue
+                seen_pairs.add(pair_key)
+    
+                abs_val = abs(val)
+                if abs_val >= 0.7:
+                    strength, stars = "Strong", "&#9733;" * 5
+                elif abs_val >= 0.4:
+                    strength, stars = "Medium", "&#9733;" * 3
+                else:
+                    strength, stars = "Weak", "&#9733;"
+    
+                relationships.append((abs_val, col_a, col_b, val, strength, stars))
+
+    relationships.sort(reverse=True)
+    if not relationships:
+        elements.append(Paragraph("No calculable correlation relationships observed.", styles["Body"]))
+        return elements
+
+    rows = [[
+        Paragraph("<b>Relationship</b>", styles["TableHeader"]), 
+        Paragraph("<b>Correlation</b>", styles["TableHeader"]), 
+        Paragraph("<b>Strength</b>", styles["TableHeader"])
+    ]]
+    for _, col_a, col_b, val, strength, stars in relationships[:8]:
+        pair_name = f"{col_a.replace('_',' ').title()} ↔ {col_b.replace('_',' ').title()}"
+        rows.append([
+            Paragraph(pair_name, styles["TableCell"]), 
+            Paragraph(f"{val:.3f}", styles["TableCell"]), 
+            Paragraph(f'{strength} <font color="{THEME["gold"]}">{stars}</font>', styles["TableCell"])
+        ])
+
+    table = Table(rows, colWidths=[3 * inch, 1.3 * inch, 2.2 * inch])
+    table.setStyle(_default_table_style())
+    elements.append(table)
+    elements.append(Spacer(1, 0.3 * inch))
+    return elements
+
+
+def _build_driver_ranking_section(statistics: dict, styles) -> list:
+    """Ranks each numeric column by how strongly it relates to everything else — a proxy for 'importance'."""
+    elements = []
+    elements.append(Paragraph("Driver Ranking", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+
+    corr = (statistics or {}).get("results", {}).get("correlation_analysis", {})
+    if not corr or "skipped_reason" in corr:
+        elements.append(Paragraph("Not enough numeric columns to rank drivers.", styles["Body"]))
+        return elements
+
+    avg_strength = {}
+    for col, row in corr.items():
+        if isinstance(row, dict):
+            others = [abs(v) for k, v in row.items() if k != col and isinstance(v, (int, float))]
+            if others:
+                avg_strength[col] = sum(others) / len(others)
+
+    ranked = sorted(avg_strength.items(), key=lambda x: x[1], reverse=True)
+    if not ranked:
+        elements.append(Paragraph("Could not compute reliable driver rankings.", styles["Body"]))
+        return elements
+
+    rows = [[
+        Paragraph("Rank", styles["TableHeader"]),
+        Paragraph("Variable", styles["TableHeader"]),
+        Paragraph("Average Relationship Strength", styles["TableHeader"])
+    ]]
+    for i, (col, strength) in enumerate(ranked[:6], 1):
+        stars = "&#9733;" * max(1, round(strength * 5))
+        rows.append([
+            Paragraph(str(i), styles["TableCell"]),
+            Paragraph(col.replace("_", " ").title(), styles["TableCell"]),
+            Paragraph(f'<font color="{THEME["gold"]}">{stars}</font>', styles["TableCell"])
+        ])
+
+    table = Table(rows, colWidths=[0.7 * inch, 2.8 * inch, 3 * inch])
+    table.setStyle(_default_table_style())
+    elements.append(table)
+    elements.append(Spacer(1, 0.3 * inch))
+    return elements
+
+
+def _build_opportunities_risks_section(narrative: dict, statistics: dict, validation_report: dict, styles) -> list:
+    elements = []
+    narrative_data = narrative or {}
+    val_data = validation_report or {}
+    stats_data = statistics or {}
+
+    # Opportunities (from narrative agent)
+    elements.append(Paragraph("Opportunities", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+    for i, opp in enumerate(narrative_data.get("opportunities", []), 1):
+        if not isinstance(opp, dict):
+            continue
+        elements.append(Paragraph(
+            f"<b>{i}. {_safe_text(opp.get('title',''))}</b> (Confidence: {_safe_text(opp.get('confidence','Medium'))})",
+            styles["SubHeading"]))
+        elements.append(Paragraph(_safe_text(opp.get("recommendation", "")), styles["Body"]))
+        elements.append(Paragraph(f"<i>Expected impact: {_safe_text(opp.get('expected_impact',''))}</i>", styles["Small"]))
+        elements.append(Spacer(1, 0.1 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Risks (from narrative agent)
+    elements.append(Paragraph("Risks", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+    priority_colors = {"Critical": THEME["red"], "High": THEME["red"], "Medium": THEME["gold"], "Low": THEME["grey_mid"]}
+    for risk in narrative_data.get("risks", []):
+        if not isinstance(risk, dict):
+            continue
+        color = priority_colors.get(risk.get("priority", "Medium"), THEME["gold"])
+        elements.append(Paragraph(
+            f'<font color="{color}"><b>[{_safe_text(risk.get("priority","Medium"))}]</b></font> '
+            f'<b>{_safe_text(risk.get("title",""))}</b> — {_safe_text(risk.get("description",""))}',
+            styles["Body"]))
+        elements.append(Spacer(1, 0.08 * inch))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # AI Alerts (deterministic)
+    elements.append(Paragraph("Alerts", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+    alerts = []
+    health = val_data.get("health_score", 100)
+    if health == 100 and val_data.get("missing_cells", 0) == 0:
+        alerts.append(("POSITIVE", THEME["green"], "Dataset quality is excellent — no missing values detected."))
+    if health < 70:
+        alerts.append(("CRITICAL", THEME["red"], f"Data health score is low ({health}/100) — investigate data collection process."))
+    outliers = stats_data.get("results", {}).get("outlier_detection", {})
+    total_outliers = sum(v.get("outlier_count", 0) for v in outliers.values() if isinstance(v, dict))
+    if total_outliers > 0:
+        alerts.append(("WARNING", THEME["gold"], f"{total_outliers} outlier record(s) detected across numeric fields."))
+
+    if not alerts:
+        alerts.append(("INFO", THEME["teal"], "No major alerts or critical system errors detected."))
+
+    for label, color, text in alerts:
+        elements.append(Paragraph(f'<font color="{color}"><b>[{label}]</b></font> {text}', styles["Body"]))
+        elements.append(Spacer(1, 0.06 * inch))
+
+    elements.append(Spacer(1, 0.3 * inch))
+    return elements
+
+
 def _generate_recommendations(statistics: dict, validation_report: dict) -> List[str]:
     """Derives deterministic recommendations from statistical findings and health checks."""
     recs = []
-    results = statistics.get("results", {}) if isinstance(statistics, dict) else {}
+    results = (statistics or {}).get("results", {}) if isinstance(statistics, dict) else {}
     trend = results.get("trend_analysis", {}) if isinstance(results, dict) else {}
     
     if isinstance(trend, dict):
@@ -651,7 +902,7 @@ def _generate_recommendations(statistics: dict, validation_report: dict) -> List
             if val is not None and abs(val) > 0.7:
                 recs.append(f"Strong correlation ({val:.2f}) observed between <b>{cols[0].replace('_',' ')}</b> and <b>{cols[1].replace('_',' ')}</b>.")
             
-    health_score = validation_report.get("health_score", 100) if isinstance(validation_report, dict) else 100
+    health_score = (validation_report or {}).get("health_score", 100) if isinstance(validation_report, dict) else 100
     if isinstance(health_score, (int, float)) and health_score < 90:
         recs.append("Data hygiene opportunities detected. Establish automated collection validation to resolve missing values.")
         
@@ -692,7 +943,7 @@ def _build_charts_section(visualizations: dict, styles: Any) -> List[Any]:
     elements.append(_section_divider())
     elements.append(Spacer(1, 0.15 * inch))
 
-    generated = visualizations.get("generated", []) if isinstance(visualizations, dict) else []
+    generated = (visualizations or {}).get("generated", []) if isinstance(visualizations, dict) else []
     if not generated:
         elements.append(Paragraph("No chart figures were generated for this dataset.", styles["Body"]))
         return elements
@@ -721,10 +972,59 @@ def _build_charts_section(visualizations: dict, styles: Any) -> List[Any]:
     return elements
 
 
+def _build_executive_conclusion(narrative: dict, statistics: dict, validation_report: dict, styles) -> list:
+    elements = []
+    elements.append(PageBreak())
+    elements.append(Paragraph("Executive Conclusion", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+
+    narrative_data = narrative or {}
+    health = _compute_business_health_score(validation_report, statistics)
+    status = "Healthy" if health >= 80 else ("Needs Attention" if health >= 60 else "At Risk")
+    top_driver = _find_strongest_predictor(statistics)
+    
+    risks = narrative_data.get("risks", [])
+    top_risk = risks[0].get("title", "None identified") if risks and isinstance(risks[0], dict) else "None identified"
+
+    rows = [
+        [Paragraph("<b>Business Status</b>", styles["TableCell"]), Paragraph(status, styles["TableCell"])],
+        [Paragraph("<b>Primary Driver</b>", styles["TableCell"]), Paragraph(top_driver, styles["TableCell"])],
+        [Paragraph("<b>Top Risk</b>", styles["TableCell"]), Paragraph(top_risk, styles["TableCell"])],
+        [Paragraph("<b>Overall Health Score</b>", styles["TableCell"]), Paragraph(f"{health}/100", styles["TableCell"])],
+    ]
+    table = Table(rows, colWidths=[2.5 * inch, 3.8 * inch])
+    table.setStyle(_default_table_style())
+    elements.append(table)
+    elements.append(Spacer(1, 0.3 * inch))
+    return elements
+
+
+def _build_appendix(styles) -> list:
+    elements = []
+    elements.append(PageBreak())
+    elements.append(Paragraph("Appendix", styles["SectionHeading"]))
+    elements.append(_section_divider())
+    elements.append(Spacer(1, 0.1 * inch))
+    elements.append(Paragraph(
+        "<b>AI Limitations:</b> This report is generated from historical data only. It does not include "
+        "forecasts, predictions, or causal claims — correlation does not imply causation. Recommendations "
+        "should be validated against business context before acting.",
+        styles["Small"]))
+    elements.append(Spacer(1, 0.15 * inch))
+    elements.append(Paragraph(
+        "<b>Methodology:</b> Statistical analyses (descriptive statistics, correlation, outlier detection via "
+        "IQR method) were computed directly from the cleaned dataset. Narrative sections were generated by an "
+        "LLM constrained to reference only the computed statistics provided to it.",
+        styles["Small"]))
+    return elements
+
+
 # ---------------------------------------------------------------------------
 # LangGraph Node Implementation
 # ---------------------------------------------------------------------------
 
+@node_error_boundary("report_generator")
 def report_generator_node(state: GraphState) -> GraphState:
     """
     LangGraph pipeline node for deterministic PDF generation.
@@ -734,34 +1034,40 @@ def report_generator_node(state: GraphState) -> GraphState:
     """
     logger.info("Report Generator Node started")
 
-    profile = state.get("profile")
-    if not profile:
-        logger.error("Missing 'profile' in state for report generation.")
-        raise ReportGeneratorError("Report Generator node requires 'profile' in state.")
-
-    validation_report = state.get("validation_report") or state.get("validation") or state.get("validation_results")
-    cleaning_report = state.get("cleaning_report") or state.get("cleaning") or state.get("cleaning_results")
+    profile = state.get("profile") or {}
+    validation_report = state.get("validation_report")
+    cleaning_report = state.get("cleaning_report")
     statistics = state.get("statistics")
     raw_insights = state.get("insights")
-    if not validation_report or not cleaning_report or not statistics or raw_insights is None:
+    narrative = state.get("narrative") or {}
+
+    missing = [name for name, val in {
+        "validation_report": validation_report,
+        "cleaning_report": cleaning_report,
+        "statistics": statistics,
+        "insights": raw_insights,
+    }.items() if val is None]
+
+    if missing:
         raise ReportGeneratorError(
-            "Report Generator node requires validation_report, cleaning_report, statistics, and insights in state."
+            f"Report Generator is missing required state fields: {missing}. "
+            "Check that every upstream node wrote to its canonical GraphState key."
         )
 
     plan = state.get("plan") or {}
-    
-    charts_state = state.get("visualizations") or state.get("charts") or []
+
+    charts_state = state.get("visualizations", {})
     if isinstance(charts_state, dict):
         visualizations = charts_state
     elif isinstance(charts_state, list):
         visualizations = {"generated": charts_state}
     else:
         visualizations = {"generated": []}
-        
+
     insights = raw_insights if isinstance(raw_insights, list) else [str(raw_insights)]
 
     os.makedirs(REPORTS_DIR, exist_ok=True)
-    file_name = f"report_{uuid.uuid4().hex[:8]}.pdf"
+    file_name = f"report_{uuid_lib.uuid4().hex[:8]}.pdf"
     report_path = os.path.join(REPORTS_DIR, file_name)
 
     styles = _build_styles()
@@ -771,21 +1077,40 @@ def report_generator_node(state: GraphState) -> GraphState:
         leftMargin=0.6 * inch, rightMargin=0.6 * inch,
     )
 
-    kpis = _extract_kpi_highlights(statistics)
-
     story = []
     story += _build_cover_page(profile, styles)
     story += _build_title_section(styles)
+
+    kpis = _extract_kpi_highlights(statistics, validation_report)
     story += _build_kpi_cards(kpis, styles)
+    
     story += _build_executive_snapshot(profile, plan, statistics, validation_report, styles)
     story += _build_key_findings_section(statistics, insights, validation_report, styles)
+
+    if narrative:
+        story += _build_business_story_section(narrative, styles)
+
     story += _build_executive_summary(insights, plan, styles)
     story += _build_dataset_overview(profile, styles)
-    story += _build_data_quality_section(validation_report, cleaning_report, styles)
-    story.append(PageBreak())
+    story += _build_data_reliability_checklist(validation_report, cleaning_report, styles)
+
+    if narrative:
+        story += _build_column_intelligence_section(narrative, styles)
+
     story += _build_statistics_section(statistics, styles)
+    story += _build_relationship_analysis_section(statistics, styles)
+    story += _build_driver_ranking_section(statistics, styles)
+
+    if narrative:
+        story += _build_opportunities_risks_section(narrative, statistics, validation_report, styles)
+
     story += _build_recommendations_section(statistics, validation_report, styles)
     story += _build_charts_section(visualizations, styles)
+
+    if narrative:
+        story += _build_executive_conclusion(narrative, statistics, validation_report, styles)
+
+    story += _build_appendix(styles)
 
     try:
         doc.build(story, onFirstPage=_add_page_footer, onLaterPages=_add_page_footer)

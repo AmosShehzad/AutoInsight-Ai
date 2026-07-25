@@ -489,3 +489,480 @@
 2026-07-23 20:17:49,430 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
 2026-07-23 20:17:49,437 | INFO | app.nodes.report_generator | Report Generator Node started
 2026-07-23 20:17:50,599 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_00c8b86d.pdf
+2026-07-24 16:46:02,549 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Sales-Export_2019-2020.csv (Extension: .csv)
+2026-07-24 16:46:02,592 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-24 16:46:02,727 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-24 16:46:02,728 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-24 16:46:02,730 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-24 16:46:02,769 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-24 16:46:02,772 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-24 16:46:02,808 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-24 16:46:02,810 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-24 16:46:02,852 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, and 1 datetime column(s).
+2026-07-24 16:46:02,853 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-24 16:46:05,725 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-24 16:46:05,778 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-24 16:46:05,784 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-24 16:46:05,786 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-24 16:46:05,834 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-24 16:46:06,041 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-24 16:46:06,755 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-24 16:46:07,608 | INFO | app.nodes.visualization | Rendered chart [2]: bar -> outputs\charts\chart_2_bar.png
+2026-07-24 16:46:08,388 | INFO | app.nodes.visualization | Rendered chart [3]: bar -> outputs\charts\chart_3_bar.png
+2026-07-24 16:46:08,673 | INFO | app.nodes.visualization | Rendered chart [4]: bar -> outputs\charts\chart_4_bar.png
+2026-07-24 16:46:09,168 | INFO | app.nodes.visualization | Rendered chart [5]: bar -> outputs\charts\chart_5_bar.png
+2026-07-24 16:46:09,538 | INFO | app.nodes.visualization | Rendered chart [6]: bar -> outputs\charts\chart_6_bar.png
+2026-07-24 16:46:09,538 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-24 16:46:11,951 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-24 16:46:13,877 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-24 16:46:13,897 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-24 16:46:15,188 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_69c3d85c.pdf
+2026-07-24 16:58:29,555 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-24 16:58:29,573 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-24 16:58:29,578 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-24 16:58:29,582 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-24 16:58:29,591 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-24 16:58:29,594 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-24 16:58:29,598 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-24 16:58:29,605 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-24 16:58:29,634 | INFO | app.nodes.profiling | Profiling complete — Analyzed 5 numeric, 0 categorical, and 0 datetime column(s).
+2026-07-24 16:58:29,637 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-24 16:58:32,734 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-24 16:58:32,754 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 3 analyses and 5 charts
+2026-07-24 16:58:32,758 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-24 16:58:32,763 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-24 16:58:32,804 | INFO | app.nodes.statistics | Statistics Node completed — produced 3 analyses (0 unsupported).
+2026-07-24 16:58:32,864 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-24 16:58:33,145 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-24 16:58:33,416 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-24 16:58:33,694 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-24 16:58:34,033 | INFO | app.nodes.visualization | Rendered chart [4]: histogram -> outputs\charts\chart_4_histogram.png
+2026-07-24 16:58:34,395 | INFO | app.nodes.visualization | Rendered chart [5]: histogram -> outputs\charts\chart_5_histogram.png
+2026-07-24 16:58:34,395 | INFO | app.nodes.visualization | Visualization Node completed — 5 generated, 0 failed.
+2026-07-24 16:58:37,206 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-24 16:58:39,542 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-24 16:58:39,550 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-24 16:58:40,634 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_f479d6cd.pdf
+2026-07-25 03:17:39,561 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-25 03:17:39,595 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 03:17:39,608 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-25 03:17:39,610 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-25 03:17:39,635 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 03:17:39,645 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-25 03:17:39,654 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-25 03:17:39,657 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-25 03:17:39,706 | INFO | app.nodes.profiling | Profiling complete — Analyzed 5 numeric, 0 categorical, and 0 datetime column(s).
+2026-07-25 03:17:39,708 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 03:17:42,428 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 03:17:42,466 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 3 analyses and 5 charts
+2026-07-25 03:17:42,487 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 03:17:42,503 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 03:17:42,540 | INFO | app.nodes.statistics | Statistics Node completed — produced 3 analyses (0 unsupported).
+2026-07-25 03:17:42,770 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 03:17:43,545 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 03:17:44,171 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-25 03:17:44,470 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-25 03:17:44,815 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 03:17:45,220 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-25 03:17:45,220 | INFO | app.nodes.visualization | Visualization Node completed — 5 generated, 0 failed.
+2026-07-25 03:17:47,236 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 03:17:49,015 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 03:17:49,024 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-25 03:17:49,904 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_6e606c8c.pdf
+2026-07-25 10:58:26,196 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-25 10:58:26,213 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 10:58:26,224 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-25 10:58:26,229 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-25 10:58:26,252 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 10:58:26,253 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-25 10:58:26,261 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-25 10:58:26,266 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-25 10:58:26,276 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-25 10:58:26,297 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-25 10:58:26,299 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 10:58:29,308 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 10:58:29,352 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-25 10:58:29,356 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 10:58:29,358 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 10:58:29,394 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-25 10:58:29,494 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 10:58:29,931 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 10:58:30,636 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-25 10:58:31,030 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-25 10:58:31,785 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 10:58:32,365 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-25 10:58:32,517 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 10:58:33,335 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-25 10:58:33,337 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-25 10:58:35,475 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 10:58:38,274 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 10:58:41,043 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 10:58:45,043 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 10:58:45,050 | ERROR | app.node_wrapper | Node 'narrative_agent' failed: NarrativeAgentError: Narrative Agent failed after retries: Failed to parse ExecutiveNarrative from completion {"business_story": "Our analysis reveals a strong positive correlation between TV advertising spend and Sales, with a correlation coefficient of 0.783, indicating that increased TV advertising spend is associated with higher Sales. The average TV advertising spend is 147.03, with a wide range of spending across the 200 observations. In contrast, the correlation between Radio advertising spend and Sales is moderate, at 0.575. Newspaper advertising spend has a relatively weak correlation with Sales, at 0.227. The average Sales value is 14.04, with a relatively consistent level of Sales across the 200 observations.", "column_intelligence": [{"column": "TV", "importance": "High", "confidence": "High"}, {"column": "Sales", "importance": "High", "confidence": "High"}, {"column": "Radio", "importance": "Medium", "confidence": "Medium"}, {"column": "Newspaper", "importance": "Low", "confidence": "Low"}, {"column": "ID", "importance": "None", "confidence": "N/A"}], "opportunities": ["Increase TV advertising spend to potentially increase Sales", "Optimize Radio advertising spend to maximize its moderate positive relationship with Sales", "Investigate ways to improve the effectiveness of Newspaper advertising spend"], "risks": ["Over-spending on TV advertising without a corresponding increase in Sales", "Under-utilizing Radio advertising spend, potentially missing out on sales opportunities", "Failing to address the weak correlation between Newspaper advertising spend and Sales"]}. Got: 21 validation errors for ExecutiveNarrative
+column_intelligence.0.purpose
+  Field required [type=missing, input_value={'column': 'TV', 'importa...', 'confidence': 'High'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.0.business_interpretation
+  Field required [type=missing, input_value={'column': 'TV', 'importa...', 'confidence': 'High'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.0.risk_note
+  Field required [type=missing, input_value={'column': 'TV', 'importa...', 'confidence': 'High'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.1.purpose
+  Field required [type=missing, input_value={'column': 'Sales', 'impo...', 'confidence': 'High'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.1.business_interpretation
+  Field required [type=missing, input_value={'column': 'Sales', 'impo...', 'confidence': 'High'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.1.risk_note
+  Field required [type=missing, input_value={'column': 'Sales', 'impo...', 'confidence': 'High'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.2.purpose
+  Field required [type=missing, input_value={'column': 'Radio', 'impo... 'confidence': 'Medium'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.2.business_interpretation
+  Field required [type=missing, input_value={'column': 'Radio', 'impo... 'confidence': 'Medium'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.2.risk_note
+  Field required [type=missing, input_value={'column': 'Radio', 'impo... 'confidence': 'Medium'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.3.purpose
+  Field required [type=missing, input_value={'column': 'Newspaper', '...w', 'confidence': 'Low'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.3.business_interpretation
+  Field required [type=missing, input_value={'column': 'Newspaper', '...w', 'confidence': 'Low'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.3.risk_note
+  Field required [type=missing, input_value={'column': 'Newspaper', '...w', 'confidence': 'Low'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.4.purpose
+  Field required [type=missing, input_value={'column': 'ID', 'importa...e', 'confidence': 'N/A'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.4.business_interpretation
+  Field required [type=missing, input_value={'column': 'ID', 'importa...e', 'confidence': 'N/A'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.4.risk_note
+  Field required [type=missing, input_value={'column': 'ID', 'importa...e', 'confidence': 'N/A'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+opportunities.0
+  Input should be a valid dictionary or instance of Opportunity [type=model_type, input_value='Increase TV advertising ...entially increase Sales', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+opportunities.1
+  Input should be a valid dictionary or instance of Opportunity [type=model_type, input_value='Optimize Radio advertisi...relationship with Sales', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+opportunities.2
+  Input should be a valid dictionary or instance of Opportunity [type=model_type, input_value='Investigate ways to impr...paper advertising spend', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+risks.0
+  Input should be a valid dictionary or instance of Risk [type=model_type, input_value='Over-spending on TV adve...nding increase in Sales', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+risks.1
+  Input should be a valid dictionary or instance of Risk [type=model_type, input_value='Under-utilizing Radio ad... on sales opportunities', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+risks.2
+  Input should be a valid dictionary or instance of Risk [type=model_type, input_value='Failing to address the w...rtising spend and Sales', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+For troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE 
+2026-07-25 11:08:40,272 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-25 11:08:40,274 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 11:08:40,278 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-25 11:08:40,280 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-25 11:08:40,285 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 11:08:40,292 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-25 11:08:40,296 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-25 11:08:40,303 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-25 11:08:40,312 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-25 11:08:40,340 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-25 11:08:40,344 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 11:08:43,777 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 11:08:43,873 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 3 analyses and 5 charts
+2026-07-25 11:08:43,882 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 11:08:43,887 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 11:08:43,931 | INFO | app.nodes.statistics | Statistics Node completed — produced 3 analyses (0 unsupported).
+2026-07-25 11:08:44,047 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 11:08:44,506 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 11:08:44,818 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-25 11:08:45,138 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-25 11:08:45,572 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 11:08:45,979 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-25 11:08:45,979 | INFO | app.nodes.visualization | Visualization Node completed — 5 generated, 0 failed.
+2026-07-25 11:08:48,563 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 11:08:51,283 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 11:08:53,924 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 11:08:58,123 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 11:08:58,130 | ERROR | app.node_wrapper | Node 'narrative_agent' failed: NarrativeAgentError: Narrative Agent failed after retries: Failed to parse ExecutiveNarrative from completion {"business_story": "Our analysis reveals that TV advertising spend has a strong positive correlation with Sales, indicating that increased investment in TV ads is associated with higher sales. The average TV advertising spend is 147.0325, with a wide range of spending, suggesting opportunities for optimization. Radio advertising also shows a relatively strong correlation with Sales, although not as strong as TV. Newspaper advertising has a weaker correlation with Sales but exhibits significant variability in spending, with 2 outliers detected. These insights suggest that TV and Radio advertising are key drivers of Sales, while Newspaper advertising may require more targeted strategies.", "column_intelligence": [{"column": "TV", "importance": "High", "confidence": "High", "correlation": 0.7832}, {"column": "Radio", "importance": "Medium", "confidence": "Medium", "correlation": 0.5749}, {"column": "Newspaper", "importance": "Low", "confidence": "Low", "correlation": 0.2269}, {"column": "Sales", "importance": "High", "confidence": "High", "correlation": "Target variable"}, {"column": "ID", "importance": "None", "confidence": "None", "correlation": "Identifier"}], "opportunities": ["Optimize TV advertising spend to maximize Sales", "Invest in Radio advertising to drive Sales growth", "Develop targeted Newspaper advertising strategies to improve effectiveness"], "risks": ["Inefficient allocation of TV advertising spend may lead to reduced Sales", "Overreliance on Radio advertising may limit Sales growth potential", "Failure to address Newspaper advertising outliers may result in wasted spend"]}. Got: 21 validation errors for ExecutiveNarrative
+column_intelligence.0.purpose
+  Field required [type=missing, input_value={'column': 'TV', 'importa..., 'correlation': 0.7832}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.0.business_interpretation
+  Field required [type=missing, input_value={'column': 'TV', 'importa..., 'correlation': 0.7832}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.0.risk_note
+  Field required [type=missing, input_value={'column': 'TV', 'importa..., 'correlation': 0.7832}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.1.purpose
+  Field required [type=missing, input_value={'column': 'Radio', 'impo..., 'correlation': 0.5749}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.1.business_interpretation
+  Field required [type=missing, input_value={'column': 'Radio', 'impo..., 'correlation': 0.5749}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.1.risk_note
+  Field required [type=missing, input_value={'column': 'Radio', 'impo..., 'correlation': 0.5749}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.2.purpose
+  Field required [type=missing, input_value={'column': 'Newspaper', '..., 'correlation': 0.2269}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.2.business_interpretation
+  Field required [type=missing, input_value={'column': 'Newspaper', '..., 'correlation': 0.2269}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.2.risk_note
+  Field required [type=missing, input_value={'column': 'Newspaper', '..., 'correlation': 0.2269}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.3.purpose
+  Field required [type=missing, input_value={'column': 'Sales', 'impo...ion': 'Target variable'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.3.business_interpretation
+  Field required [type=missing, input_value={'column': 'Sales', 'impo...ion': 'Target variable'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.3.risk_note
+  Field required [type=missing, input_value={'column': 'Sales', 'impo...ion': 'Target variable'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.4.purpose
+  Field required [type=missing, input_value={'column': 'ID', 'importa...relation': 'Identifier'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.4.business_interpretation
+  Field required [type=missing, input_value={'column': 'ID', 'importa...relation': 'Identifier'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+column_intelligence.4.risk_note
+  Field required [type=missing, input_value={'column': 'ID', 'importa...relation': 'Identifier'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+opportunities.0
+  Input should be a valid dictionary or instance of Opportunity [type=model_type, input_value='Optimize TV advertising spend to maximize Sales', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+opportunities.1
+  Input should be a valid dictionary or instance of Opportunity [type=model_type, input_value='Invest in Radio advertis...g to drive Sales growth', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+opportunities.2
+  Input should be a valid dictionary or instance of Opportunity [type=model_type, input_value='Develop targeted Newspap...o improve effectiveness', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+risks.0
+  Input should be a valid dictionary or instance of Risk [type=model_type, input_value='Inefficient allocation o...y lead to reduced Sales', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+risks.1
+  Input should be a valid dictionary or instance of Risk [type=model_type, input_value='Overreliance on Radio ad... Sales growth potential', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+risks.2
+  Input should be a valid dictionary or instance of Risk [type=model_type, input_value='Failure to address Newsp... result in wasted spend', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/model_type
+For troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE 
+2026-07-25 15:42:40,191 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-25 15:42:40,215 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 15:42:40,223 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-25 15:42:40,226 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-25 15:42:40,246 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 15:42:40,253 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-25 15:42:40,256 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-25 15:42:40,262 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-25 15:42:40,278 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-25 15:42:40,305 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-25 15:42:40,306 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 15:42:43,056 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 15:42:43,173 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 3 analyses and 5 charts
+2026-07-25 15:42:43,211 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 15:42:43,251 | INFO | app.nodes.statistics | Statistics Node completed — produced 3 analyses (0 unsupported).
+2026-07-25 15:42:43,266 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 15:42:43,428 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 15:42:44,014 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 15:42:45,121 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-25 15:42:46,525 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-25 15:42:48,312 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 15:42:48,458 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 15:42:49,688 | INFO | app.nodes.visualization | Rendered chart [5]: correlation_heatmap -> outputs\charts\chart_5_correlation_heatmap.png
+2026-07-25 15:42:49,689 | INFO | app.nodes.visualization | Visualization Node completed — 5 generated, 0 failed.
+2026-07-25 15:42:53,762 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 15:42:58,922 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 15:42:58,924 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 15:43:01,992 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 15:43:01,995 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-25 15:43:02,916 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_c8f151cb.pdf
+2026-07-25 16:01:13,152 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Sales-Export_2019-2020.csv (Extension: .csv)
+2026-07-25 16:01:13,178 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 16:01:13,328 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-25 16:01:13,329 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-25 16:01:13,332 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-25 16:01:13,354 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 16:01:13,358 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-25 16:01:13,391 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-25 16:01:13,392 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-25 16:01:13,431 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-25 16:01:13,433 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:01:25,535 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:01:25,611 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 6 charts
+2026-07-25 16:01:25,619 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:01:25,621 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 16:01:25,687 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-25 16:01:25,890 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 16:01:26,319 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-25 16:01:26,713 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-25 16:01:27,148 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-25 16:01:27,382 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-25 16:01:27,891 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-25 16:01:28,296 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-25 16:01:28,296 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-25 16:01:35,681 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:01:49,696 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:01:50,046 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:02:15,662 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:02:15,671 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:02:47,095 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:02:47,102 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 6 analyses and 6 charts
+2026-07-25 16:02:47,119 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:02:47,267 | INFO | app.nodes.statistics | Statistics Node completed — produced 6 analyses (0 unsupported).
+2026-07-25 16:02:47,663 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-25 16:02:48,175 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-25 16:02:48,649 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-25 16:02:48,883 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-25 16:02:49,306 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-25 16:02:49,691 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-25 16:02:49,692 | INFO | app.nodes.visualization | Visualization Node completed — 12 generated, 0 failed.
+2026-07-25 16:03:07,737 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:03:28,610 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:03:44,857 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:04:04,197 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 0.482774 seconds
+2026-07-25 16:12:59,201 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-25 16:12:59,218 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 16:12:59,222 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-25 16:12:59,224 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-25 16:12:59,231 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 16:12:59,234 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-25 16:12:59,240 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-25 16:12:59,244 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-25 16:12:59,247 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-25 16:12:59,279 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-25 16:12:59,282 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:13:02,292 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:02,358 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-25 16:13:02,365 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:13:02,371 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 16:13:02,429 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-25 16:13:02,490 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 16:13:02,959 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 16:13:03,387 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-25 16:13:04,646 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-25 16:13:05,843 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 16:13:06,867 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-25 16:13:07,209 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 16:13:08,507 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-25 16:13:08,512 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-25 16:13:15,886 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:20,187 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:20,192 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:13:23,975 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:23,984 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:13:27,158 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:27,164 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-25 16:13:27,181 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:13:27,336 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-25 16:13:27,804 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 16:13:28,303 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-25 16:13:28,894 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-25 16:13:29,462 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 16:13:30,268 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-25 16:13:31,421 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-25 16:13:31,421 | INFO | app.nodes.visualization | Visualization Node completed — 12 generated, 0 failed.
+2026-07-25 16:13:35,789 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:39,639 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:39,641 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:13:42,283 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:42,289 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:13:45,078 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:45,085 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 6 charts
+2026-07-25 16:13:45,148 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:13:45,251 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-25 16:13:45,684 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-25 16:13:46,354 | INFO | app.nodes.visualization | Rendered chart [2]: quantile_hist -> outputs\charts\chart_2_quantile_hist.png
+2026-07-25 16:13:47,117 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-25 16:13:47,959 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-25 16:13:48,751 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-25 16:13:50,099 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-25 16:13:50,099 | INFO | app.nodes.visualization | Visualization Node completed — 18 generated, 0 failed.
+2026-07-25 16:13:55,720 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:13:57,876 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-25 16:13:57,877 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 5.000000 seconds
+2026-07-25 16:14:05,343 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:14:05,403 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:14:05,410 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-25 16:14:07,847 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_fb8b90dc.pdf
+2026-07-25 16:16:23,812 | ERROR | app.nodes.file_loader | File not found: sample_data/Sales-Export_2019_2020.csv
+2026-07-25 16:16:23,813 | ERROR | app.node_wrapper | Node 'file_loader' failed: FileLoadError: File not found: sample_data/Sales-Export_2019_2020.csv
+2026-07-25 16:16:46,641 | ERROR | app.nodes.file_loader | File not found: sample_data/Sales-Export_2019_2020.csv
+2026-07-25 16:16:46,641 | ERROR | app.node_wrapper | Node 'file_loader' failed: FileLoadError: File not found: sample_data/Sales-Export_2019_2020.csv
+2026-07-25 16:16:58,920 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Sales-Export_2019-2020.csv (Extension: .csv)
+2026-07-25 16:16:58,929 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-25 16:16:59,082 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-25 16:16:59,084 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-25 16:16:59,085 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-25 16:16:59,103 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-25 16:16:59,105 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-25 16:16:59,151 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-25 16:16:59,152 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-25 16:16:59,190 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-25 16:16:59,191 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:17:02,605 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:02,682 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 6 charts
+2026-07-25 16:17:02,693 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:17:02,699 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-25 16:17:02,764 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-25 16:17:02,881 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-25 16:17:03,285 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-25 16:17:03,729 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-25 16:17:04,282 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-25 16:17:04,697 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-25 16:17:05,453 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-25 16:17:05,969 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-25 16:17:05,969 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-25 16:17:10,174 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:13,862 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:13,930 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:17:17,138 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:17,152 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:17:21,848 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:21,854 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 6 analyses and 6 charts
+2026-07-25 16:17:21,867 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:17:22,024 | INFO | app.nodes.statistics | Statistics Node completed — produced 6 analyses (0 unsupported).
+2026-07-25 16:17:22,505 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-25 16:17:23,009 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-25 16:17:23,736 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-25 16:17:24,029 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-25 16:17:24,489 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-25 16:17:24,895 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-25 16:17:24,896 | INFO | app.nodes.visualization | Visualization Node completed — 12 generated, 0 failed.
+2026-07-25 16:17:29,378 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:33,934 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:33,946 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:17:39,154 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-25 16:17:39,157 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 8.000000 seconds
+2026-07-25 16:17:49,686 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:49,695 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-25 16:17:53,054 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-25 16:17:53,056 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-25 16:17:57,043 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:17:57,047 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-25 16:17:57,057 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-25 16:17:57,136 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-25 16:17:58,041 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-25 16:17:59,046 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-25 16:18:00,054 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-25 16:18:00,530 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-25 16:18:01,255 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-25 16:18:02,017 | INFO | app.nodes.visualization | Rendered chart [6]: quantile_hist -> outputs\charts\chart_6_quantile_hist.png
+2026-07-25 16:18:02,018 | INFO | app.nodes.visualization | Visualization Node completed — 18 generated, 0 failed.
+2026-07-25 16:18:12,073 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:18:15,322 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-25 16:18:15,323 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 1.000000 seconds
+2026-07-25 16:18:16,781 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-25 16:18:16,782 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-25 16:18:20,832 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-25 16:18:20,840 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-25 16:18:20,849 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-25 16:18:22,213 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_512c0c5d.pdf

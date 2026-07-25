@@ -1,21 +1,20 @@
+import json
 import os
 import sys
-from pathlib import Path
-
-# Automatically adds the project root directory to Python's import search path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from app.logger import get_logger
-logger = get_logger(__name__)
-import json
 import time
-from langchain_core.prompts import ChatPromptTemplate
+from pathlib import Path
 from dotenv import load_dotenv
+from langchain_core.prompts import ChatPromptTemplate
 
-from app.schemas.state import GraphState
+from app.config import config
+from app.logger import get_logger
+from app.node_wrapper import node_error_boundary
 from app.schemas.insight import InsightList
+from app.schemas.state import GraphState
 from utils.llm_factory import get_llm
 
 load_dotenv()
+logger = get_logger(__name__)
 
 
 class InsightAgentError(Exception):
@@ -52,11 +51,13 @@ INSIGHT_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 
-def _build_chain(temperature: float = 0.3):
+def _build_chain(temperature: float = None):
     """
     Helper that builds the prompt -> structured-LLM chain using the central factory.
+    Uses config.LLM_MODEL and config.INSIGHT_TEMPERATURE by default.
     """
-    llm = get_llm(temperature=temperature)
+    temp = temperature if temperature is not None else config.INSIGHT_TEMPERATURE
+    llm = get_llm(model=config.LLM_MODEL, temperature=temp)
     # Switched to JSON mode for improved structured output reliability
     structured_llm = llm.with_structured_output(InsightList, method="json_mode")
     return INSIGHT_PROMPT | structured_llm
@@ -81,6 +82,7 @@ def _dedupe_similar_insights(insights: list) -> list:
     return deduped
 
 
+@node_error_boundary("insight_agent")
 def insight_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     """
     LangGraph node (REAL AGENT — LLM-powered).
@@ -109,10 +111,11 @@ def insight_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     last_error = None
     for attempt in range(1, max_retries + 2):
         try:
-            # Slightly vary temperature on each retry attempt — helps the
-            # model escape a bad generation pattern instead of repeating
-            # the exact same malformed output every time.
-            chain = _build_chain(temperature=0.3 + (attempt - 1) * 0.15)
+            # Vary temperature on each attempt relative to base config.INSIGHT_TEMPERATURE
+            base_temp = config.INSIGHT_TEMPERATURE
+            current_temp = base_temp + (attempt - 1) * 0.15
+            chain = _build_chain(temperature=current_temp)
+
             result: InsightList = chain.invoke({
                 "statistics": stats_json,
                 "charts": charts_json,

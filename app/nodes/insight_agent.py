@@ -57,7 +57,7 @@ def _build_chain(temperature: float = None):
     Uses config.LLM_MODEL and config.INSIGHT_TEMPERATURE by default.
     """
     temp = temperature if temperature is not None else config.INSIGHT_TEMPERATURE
-    llm = get_llm(model=config.LLM_MODEL, temperature=temp)
+    llm = get_llm(model=config.LLM_MODEL, temperature=temp, tags=["insight_agent"])
     # Switched to JSON mode for improved structured output reliability
     structured_llm = llm.with_structured_output(InsightList, method="json_mode")
     return INSIGHT_PROMPT | structured_llm

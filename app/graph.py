@@ -10,6 +10,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 
 from app.config import config
+from app.logger import get_logger
 from app.schemas.state import GraphState
 from app.node_wrapper import NodeExecutionError
 from app.nodes.file_loader import load_file_node
@@ -25,6 +26,12 @@ from app.nodes.critic_agent import critic_agent_node
 from app.nodes.report_generator import report_generator_node
 
 DB_PATH = config.DB_PATH
+logger = get_logger(__name__)
+
+if config.LANGCHAIN_TRACING_V2 == "true":
+    logger.info(f"LangSmith tracing ENABLED — project: '{config.LANGCHAIN_PROJECT}'")
+else:
+    logger.warning("LangSmith tracing is DISABLED. Set LANGCHAIN_TRACING_V2=true in .env to enable it.")
 
 
 class PipelineExecutionError(Exception):
@@ -37,13 +44,25 @@ class PipelineExecutionError(Exception):
 
 def run_pipeline_safely(app_graph, initial_state: dict, config_dict: dict) -> dict:
     """
-    Wraps graph.invoke() with a friendly error boundary. NodeExecutionError
-    (raised by @node_error_boundary inside each node) is tagged with the
-    REAL node name at the point of failure — no guessing from exception
-    module names.
+    Wraps graph.invoke() with a friendly error boundary. Also attaches
+    the job's thread_id as LangSmith run metadata, so you can search
+    LangSmith by job_id and find that exact run's full trace.
     """
+    thread_id = config_dict.get("configurable", {}).get("thread_id", "unknown")
+    
+    # Merge metadata into the existing config without overwriting existing options
+    enriched_config = {
+        **config_dict,
+        "metadata": {
+            **config_dict.get("metadata", {}),
+            "job_id": thread_id,
+            "project": config.LANGCHAIN_PROJECT,
+        },
+        "run_name": f"autoinsight-run-{thread_id}",
+    }
+
     try:
-        return app_graph.invoke(initial_state, config=config_dict)
+        return app_graph.invoke(initial_state, config=enriched_config)
     except NodeExecutionError as e:
         raise PipelineExecutionError(stage=e.node_name, message=str(e.original_exception))
     except Exception as e:
@@ -59,7 +78,11 @@ def _route_after_critic(state: GraphState) -> str:
 
 def _increment_revision_count(state: GraphState) -> dict:
     current = state.get("revision_count", 0)
-    return {"revision_count": current + 1}
+    feedback = state.get("critic_feedback", {})
+    return {
+        "revision_count": current + 1,
+        "last_missing_analyses": feedback.get("missing_analyses", []),
+    }
 
 
 def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None):
@@ -110,12 +133,8 @@ def build_graph(db_path: str = DB_PATH, interrupt_after: list[str] | None = None
     graph.add_edge("report_generator", END)
 
     conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
-    # WAL (Write-Ahead Logging) mode lets one writer and multiple readers
-    # work on the SQLite file AT THE SAME TIME without locking each other out.
-    # Without this, a background pipeline write and a /status poll's read
-    # can collide and throw "database is locked".
     conn.execute("PRAGMA journal_mode=WAL;")
-    conn.execute("PRAGMA busy_timeout=5000;")  # if still momentarily busy, wait up to 5s instead of failing instantly
+    conn.execute("PRAGMA busy_timeout=5000;")
     serde = JsonPlusSerializer(pickle_fallback=True)
     checkpointer = SqliteSaver(conn, serde=serde)
 
@@ -134,4 +153,4 @@ if __name__ == "__main__":
     )
     print("Revision count:", result.get("revision_count", 0))
     print("Critic feedback:", result.get("critic_feedback"))
-    print("\nReport generated at:", result.get("report_path"))
+    print("\nReport generated at:", result.get("report_path"))                                  

@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+checkpoints.sqlite
+checkpoints.sqlite-wal
+checkpoints.sqlite-shm
+outputs/
+.git/
+.pytest_cache/
+BUGS_FOUND.md

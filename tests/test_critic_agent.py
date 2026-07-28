@@ -1,6 +1,7 @@
 import os
 import pytest
-from app.nodes.critic_agent import critic_agent_node, MAX_REVISIONS, CriticAgentError
+from app.nodes.critic_agent import critic_agent_node, CriticAgentError
+from app.config import config
 
 requires_api_key = pytest.mark.skipif(
     not os.getenv("GROQ_API_KEY"),
@@ -24,7 +25,7 @@ def test_safety_valve_forces_approval_at_max_revisions():
     Does NOT need an API key — this tests the safety valve, which
     short-circuits BEFORE any LLM call happens.
     """
-    state = _minimal_state(revision_count=MAX_REVISIONS)
+    state = _minimal_state(revision_count=config.MAX_REVISIONS)
     result = critic_agent_node(state)
 
     assert result["critic_feedback"]["approved"] is True

@@ -1,17 +1,18 @@
 import os
 import json
 import time
-from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
+from langchain_core.prompts import ChatPromptTemplate
+
+from app.config import config
 from app.logger import get_logger
-logger = get_logger(__name__)
+from app.node_wrapper import node_error_boundary
 from app.schemas.state import GraphState
 from app.schemas.critic import CriticFeedback
 from utils.llm_factory import get_llm
 
 load_dotenv()
-
-MAX_REVISIONS = 2   # Safety valve — after this many loops, force approval
+logger = get_logger(__name__)
 
 
 class CriticAgentError(Exception):
@@ -58,18 +59,17 @@ def _build_chain():
     """
     Helper that builds the prompt -> structured-LLM chain using the central factory.
     """
-    llm = get_llm(temperature=0.1)
-    # Switched to JSON mode for improved structured output reliability
+    llm = get_llm(temperature=config.CRITIC_TEMPERATURE, tags=["critic_agent"])
     structured_llm = llm.with_structured_output(CriticFeedback, method="json_mode")
     return CRITIC_PROMPT | structured_llm
 
-from app.node_wrapper import node_error_boundary
 
 @node_error_boundary("critic_agent")
 def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
     """
     LangGraph node (REAL AGENT — LLM-powered).
     Reviews the full analysis produced so far and decides if it's acceptable.
+    Prevents endless loops by auto-approving if identical feedback is repeated.
     """
     plan = state.get("plan")
     statistics = state.get("statistics")
@@ -83,10 +83,10 @@ def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
             "all present in state. It must run AFTER the Insight Agent."
         )
 
-    if revision_count >= MAX_REVISIONS:
+    if revision_count >= config.MAX_REVISIONS:
         forced_feedback = {
             "approved": True,
-            "reason": f"Forced approval after reaching max revision limit ({MAX_REVISIONS}).",
+            "reason": f"Forced approval after reaching max revision limit ({config.MAX_REVISIONS}).",
             "missing_analyses": [],
         }
         return {"critic_feedback": forced_feedback}
@@ -109,7 +109,19 @@ def critic_agent_node(state: GraphState, max_retries: int = 2) -> GraphState:
         try:
             result: CriticFeedback = chain.invoke(inputs)
             feedback_dict = result.model_dump()
-            return {"critic_feedback": feedback_dict}
+
+            # Repeat check: auto-approve if the critic requests the exact same missing analyses twice
+            new_missing = feedback_dict.get("missing_analyses", [])
+            last_missing = state.get("last_missing_analyses", [])
+
+            if not feedback_dict["approved"] and revision_count > 0 and set(new_missing) == set(last_missing):
+                feedback_dict["approved"] = True
+                feedback_dict["reason"] += " (Auto-approved: repeated feedback, no further progress possible.)"
+
+            return {
+                "critic_feedback": feedback_dict,
+                "last_missing_analyses": new_missing,
+            }
         except Exception as e:
             last_error = e
             if attempt <= max_retries:

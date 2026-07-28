@@ -1102,3 +1102,499 @@ For troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/erro
 2026-07-26 04:11:42,400 | INFO | app.nodes.report_generator | Report Generator Node started
 2026-07-26 04:11:43,374 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_87b1aea4.pdf
 2026-07-26 04:11:43,381 | INFO | app.api.jobs | Job e7c1112aef33: pipeline completed successfully
+2026-07-26 20:07:50,277 | INFO | __main__ | LangSmith tracing ENABLED — project: 'autoinsight'
+2026-07-26 20:07:50,541 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Sales-Export_2019-2020.csv (Extension: .csv)
+2026-07-26 20:07:50,576 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 20:07:51,017 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-26 20:07:51,018 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-26 20:07:51,108 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-26 20:07:51,139 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 20:07:51,243 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-26 20:07:51,301 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-26 20:07:51,536 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-26 20:07:51,633 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-26 20:07:51,961 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:07:55,985 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:07:56,029 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 6 charts
+2026-07-26 20:07:56,295 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:07:56,308 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 20:07:56,353 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-26 20:07:56,731 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 20:07:57,588 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 20:07:58,410 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:07:59,184 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 20:07:59,516 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:08:00,046 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-26 20:08:00,777 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 20:08:00,777 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-26 20:08:03,913 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:07,742 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:07,794 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:08:10,939 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:11,339 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:08:13,749 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:13,755 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 6 analyses and 6 charts
+2026-07-26 20:08:13,877 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:08:13,950 | INFO | app.nodes.statistics | Statistics Node completed — produced 6 analyses (0 unsupported).
+2026-07-26 20:08:14,394 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 20:08:14,820 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:08:15,302 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 20:08:15,573 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:08:16,036 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-26 20:08:16,471 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 20:08:16,472 | INFO | app.nodes.visualization | Visualization Node completed — 12 generated, 0 failed.
+2026-07-26 20:08:19,239 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:20,552 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:08:20,554 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 4.000000 seconds
+2026-07-26 20:08:26,088 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:26,110 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:08:28,680 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:08:28,681 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 11.000000 seconds
+2026-07-26 20:08:40,198 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:40,666 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:08:42,745 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:08:42,747 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:08:49,937 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:08:49,963 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 6 analyses and 6 charts
+2026-07-26 20:08:50,231 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:08:50,372 | INFO | app.nodes.statistics | Statistics Node completed — produced 6 analyses (0 unsupported).
+2026-07-26 20:08:51,142 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 20:08:51,931 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:08:52,432 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 20:08:53,304 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:08:54,255 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-26 20:08:55,134 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 20:08:55,135 | INFO | app.nodes.visualization | Visualization Node completed — 18 generated, 0 failed.
+2026-07-26 20:08:57,209 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:08:57,211 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:09:04,326 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:09:06,553 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:09:06,555 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 10.000000 seconds
+2026-07-26 20:09:17,755 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:09:17,762 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:09:18,827 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 20:09:20,930 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_471af43c.pdf
+2026-07-26 20:25:03,701 | INFO | app.graph | LangSmith tracing ENABLED — project: 'autoinsight'
+2026-07-26 20:25:04,133 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Sales-Export_2019-2020.csv (Extension: .csv)
+2026-07-26 20:25:04,167 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 20:25:04,513 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-26 20:25:04,515 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-26 20:25:04,593 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-26 20:25:04,617 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 20:25:04,736 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-26 20:25:04,802 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-26 20:25:04,990 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-26 20:25:05,043 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-26 20:25:05,240 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:25:08,279 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:08,320 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 6 charts
+2026-07-26 20:25:08,431 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:25:08,434 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 20:25:08,451 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-26 20:25:08,630 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 20:25:09,075 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 20:25:09,575 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:25:10,039 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 20:25:10,311 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:25:10,766 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-26 20:25:11,193 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 20:25:11,194 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-26 20:25:14,136 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:18,699 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:18,711 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:25:21,181 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:21,399 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:25:23,588 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:23,629 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 6 analyses and 6 charts
+2026-07-26 20:25:23,811 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:25:23,880 | INFO | app.nodes.statistics | Statistics Node completed — produced 6 analyses (0 unsupported).
+2026-07-26 20:25:24,562 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 20:25:25,129 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:25:26,162 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 20:25:27,056 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:25:27,276 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-26 20:25:27,378 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-26 20:25:46,287 | INFO | app.nodes.visualization | Rendered chart [5]: scatter -> outputs\charts\chart_5_scatter.png
+2026-07-26 20:25:46,718 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 20:25:46,718 | INFO | app.nodes.visualization | Visualization Node completed — 12 generated, 0 failed.
+2026-07-26 20:25:49,149 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:51,888 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:51,893 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:25:54,297 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:25:54,628 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:25:56,448 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:25:56,448 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 5.000000 seconds
+2026-07-26 20:26:03,018 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:26:03,030 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 6 analyses and 6 charts
+2026-07-26 20:26:03,186 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:26:03,286 | INFO | app.nodes.statistics | Statistics Node completed — produced 6 analyses (0 unsupported).
+2026-07-26 20:26:03,800 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-26 20:26:04,413 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:26:05,134 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-26 20:26:05,506 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:26:06,092 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-26 20:26:06,650 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-26 20:26:06,651 | INFO | app.nodes.visualization | Visualization Node completed — 18 generated, 0 failed.
+2026-07-26 20:26:08,600 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:26:08,602 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:26:15,209 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:26:15,210 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:26:18,550 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:26:20,204 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:26:20,206 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 9.000000 seconds
+2026-07-26 20:26:30,381 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:26:30,390 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:26:30,668 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 20:26:32,235 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_566995ef.pdf
+2026-07-26 20:26:32,442 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Advertising And Sales.csv (Extension: .csv)
+2026-07-26 20:26:32,466 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 20:26:32,467 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 200 rows x 5 columns.
+2026-07-26 20:26:32,473 | INFO | app.nodes.validation | Validation Node started — 200 rows, 5 columns
+2026-07-26 20:26:32,478 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 20:26:32,483 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 200 rows and 5 columns.
+2026-07-26 20:26:32,491 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 200 -> 200. Columns converted: 0.
+2026-07-26 20:26:32,497 | INFO | app.nodes.profiling | Profiling Node started — 200 rows, 5 columns
+2026-07-26 20:26:32,501 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['ID']
+2026-07-26 20:26:32,517 | INFO | app.nodes.profiling | Profiling complete — Analyzed 4 numeric, 0 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-26 20:26:32,527 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:26:35,442 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:26:35,455 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 1.000000 seconds
+2026-07-26 20:26:37,600 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:26:38,205 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-26 20:26:38,235 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:26:38,242 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 20:26:38,312 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 20:26:38,790 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-26 20:26:39,957 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-26 20:26:40,269 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-26 20:26:40,723 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-26 20:26:41,232 | INFO | app.nodes.visualization | Rendered chart [5]: quantile_hist -> outputs\charts\chart_5_quantile_hist.png
+2026-07-26 20:26:41,335 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-26 20:26:42,307 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-26 20:26:42,307 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-26 20:26:44,046 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:26:44,047 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 3.000000 seconds
+2026-07-26 20:26:48,342 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:26:50,078 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:26:50,079 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 7.000000 seconds
+2026-07-26 20:26:59,265 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:26:59,271 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:27:00,900 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:00,901 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 10.000000 seconds
+2026-07-26 20:27:11,598 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:11,600 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:27:14,408 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:27:14,456 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:27:15,940 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:15,942 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 1.000000 seconds
+2026-07-26 20:27:17,201 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:17,203 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 3.000000 seconds
+2026-07-26 20:27:21,314 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:27:21,320 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-26 20:27:21,336 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:27:21,410 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 20:27:21,881 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-26 20:27:22,186 | INFO | app.nodes.visualization | Rendered chart [2]: scatter -> outputs\charts\chart_2_scatter.png
+2026-07-26 20:27:22,531 | INFO | app.nodes.visualization | Rendered chart [3]: scatter -> outputs\charts\chart_3_scatter.png
+2026-07-26 20:27:22,984 | INFO | app.nodes.visualization | Rendered chart [4]: quantile_hist -> outputs\charts\chart_4_quantile_hist.png
+2026-07-26 20:27:23,337 | INFO | app.nodes.visualization | Rendered chart [5]: line -> outputs\charts\chart_5_line.png
+2026-07-26 20:27:23,851 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-26 20:27:23,852 | INFO | app.nodes.visualization | Visualization Node completed — 12 generated, 0 failed.
+2026-07-26 20:27:25,321 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:25,323 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:27:27,565 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:27,567 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 3.000000 seconds
+2026-07-26 20:27:31,774 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:27:33,231 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:33,233 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:27:41,058 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:27:41,068 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:27:42,550 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:42,553 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 9.000000 seconds
+2026-07-26 20:27:52,154 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:52,156 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 3.000000 seconds
+2026-07-26 20:27:57,232 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:27:57,283 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:27:58,714 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:27:58,715 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:28:02,003 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:28:02,017 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-26 20:28:02,046 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:28:02,079 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 20:28:02,354 | INFO | app.nodes.visualization | Rendered chart [1]: scatter -> outputs\charts\chart_1_scatter.png
+2026-07-26 20:28:02,735 | INFO | app.nodes.visualization | Rendered chart [2]: quantile_hist -> outputs\charts\chart_2_quantile_hist.png
+2026-07-26 20:28:03,159 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-26 20:28:03,503 | INFO | app.nodes.visualization | Rendered chart [4]: scatter -> outputs\charts\chart_4_scatter.png
+2026-07-26 20:28:03,828 | INFO | app.nodes.visualization | Rendered chart [5]: scatter -> outputs\charts\chart_5_scatter.png
+2026-07-26 20:28:04,418 | INFO | app.nodes.visualization | Rendered chart [6]: correlation_heatmap -> outputs\charts\chart_6_correlation_heatmap.png
+2026-07-26 20:28:04,419 | INFO | app.nodes.visualization | Visualization Node completed — 18 generated, 0 failed.
+2026-07-26 20:28:05,895 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:28:05,897 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:28:13,158 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:28:14,772 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:28:14,774 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 10.000000 seconds
+2026-07-26 20:28:26,227 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:28:26,237 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:28:26,278 | INFO | app.nodes.report_generator | Report Generator Node started
+2026-07-26 20:28:27,772 | INFO | app.nodes.report_generator | Report successfully compiled and saved to: outputs/reports\report_036f0db0.pdf
+2026-07-26 20:28:27,792 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/survey_sample.csv (Extension: .csv)
+2026-07-26 20:28:27,805 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 20:28:27,806 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 8 rows x 6 columns.
+2026-07-26 20:28:27,809 | INFO | app.nodes.validation | Validation Node started — 8 rows, 6 columns
+2026-07-26 20:28:27,815 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 20:28:27,815 | WARNING | app.nodes.validation | Validation Warnings: ['Extremely small dataset size (8 rows). Statistical analyses may be unviable.']
+2026-07-26 20:28:27,820 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 8 rows and 6 columns.
+2026-07-26 20:28:27,829 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 8 -> 8. Columns converted: 0.
+2026-07-26 20:28:27,833 | INFO | app.nodes.profiling | Profiling Node started — 8 rows, 6 columns
+2026-07-26 20:28:27,845 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 5 categorical, 0 datetime column(s), and excluded 0 identifier column(s).
+2026-07-26 20:28:27,851 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:28:29,365 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:28:29,367 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:28:36,577 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:28:36,589 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 3 charts
+2026-07-26 20:28:36,617 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:28:36,629 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 20:28:36,635 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 20:28:36,639 | WARNING | app.nodes.visualization | Plan specified only 3 chart(s) — supplementing with auto-generated charts. This is a Visualization Node fallback, not a Planning Agent decision; tagging auto-generated charts.
+2026-07-26 20:28:36,912 | INFO | app.nodes.visualization | Rendered chart [1]: pareto_bar -> outputs\charts\chart_1_pareto_bar.png
+2026-07-26 20:28:37,134 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:28:37,507 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-26 20:28:37,819 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:28:38,222 | INFO | app.nodes.visualization | Rendered chart [5]: stacked_bar -> outputs\charts\chart_5_stacked_bar.png
+2026-07-26 20:28:38,756 | INFO | app.nodes.visualization | Rendered chart [6]: quantile_hist -> outputs\charts\chart_6_quantile_hist.png
+2026-07-26 20:28:39,079 | INFO | app.nodes.visualization | Rendered chart [7]: pareto_bar -> outputs\charts\chart_7_pareto_bar.png
+2026-07-26 20:28:39,080 | INFO | app.nodes.visualization | Visualization Node completed — 7 generated, 0 failed.
+2026-07-26 20:28:40,704 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:28:40,705 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 3.000000 seconds
+2026-07-26 20:28:44,725 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:28:46,204 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:28:46,205 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:28:53,355 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:28:53,365 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:28:54,833 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:28:54,835 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:29:01,369 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:01,371 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:29:04,377 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:29:04,418 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:29:05,482 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:05,483 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 5.000000 seconds
+2026-07-26 20:29:11,485 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:29:11,498 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 4 charts
+2026-07-26 20:29:11,542 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:29:11,549 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-26 20:29:11,850 | INFO | app.nodes.visualization | Rendered chart [1]: pareto_bar -> outputs\charts\chart_1_pareto_bar.png
+2026-07-26 20:29:12,123 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:29:12,643 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-26 20:29:12,644 | WARNING | app.nodes.visualization | Unrecognized chart_type 'boxplot' (normalized: 'boxplot') — using default fallback 'pareto_bar'.
+2026-07-26 20:29:12,654 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-26 20:29:12,656 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-26 20:29:12,990 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:29:12,990 | INFO | app.nodes.visualization | Visualization Node completed — 11 generated, 0 failed.
+2026-07-26 20:29:14,140 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:14,143 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 5.000000 seconds
+2026-07-26 20:29:19,221 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:19,223 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:29:22,096 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:29:23,559 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:23,561 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 7.000000 seconds
+2026-07-26 20:29:31,132 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:31,133 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 2.000000 seconds
+2026-07-26 20:29:34,424 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:29:34,434 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-26 20:29:35,959 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:35,962 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 8.000000 seconds
+2026-07-26 20:29:47,351 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:29:47,392 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:29:48,905 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:48,907 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 4.000000 seconds
+2026-07-26 20:29:54,419 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:29:54,433 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 4 charts
+2026-07-26 20:29:54,466 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:29:54,469 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-26 20:29:54,737 | INFO | app.nodes.visualization | Rendered chart [1]: pareto_bar -> outputs\charts\chart_1_pareto_bar.png
+2026-07-26 20:29:54,952 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:29:55,421 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-26 20:29:55,422 | WARNING | app.nodes.visualization | Unrecognized chart_type 'boxplot' (normalized: 'boxplot') — using default fallback 'pareto_bar'.
+2026-07-26 20:29:55,430 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-26 20:29:55,431 | INFO | matplotlib.category | Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-07-26 20:29:55,694 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:29:55,695 | INFO | app.nodes.visualization | Visualization Node completed — 15 generated, 0 failed.
+2026-07-26 20:29:57,434 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:29:57,435 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 6.000000 seconds
+2026-07-26 20:30:04,823 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:30:06,443 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:06,445 | INFO | groq._base_client | Retrying request to /openai/v1/chat/completions in 8.000000 seconds
+2026-07-26 20:30:15,316 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:15,386 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 1 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97476, Requested 2675. Please try again in 2m10.464s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:17,179 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:17,190 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 2 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97474, Requested 2675. Please try again in 2m8.735999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:20,452 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:20,462 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 3 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97470, Requested 2675. Please try again in 2m5.279999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:20,463 | ERROR | app.node_wrapper | Node 'narrative_agent' failed: NarrativeAgentError: Narrative Agent failed after retries: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97470, Requested 2675. Please try again in 2m5.279999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:20,563 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/heavy_nulls_sample.csv (Extension: .csv)
+2026-07-26 20:30:20,576 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 20:30:20,577 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 8 rows x 5 columns.
+2026-07-26 20:30:20,580 | INFO | app.nodes.validation | Validation Node started — 8 rows, 5 columns
+2026-07-26 20:30:20,584 | INFO | app.nodes.validation | Validation complete — Health Score: 75.5/100 (Grade B)
+2026-07-26 20:30:20,585 | WARNING | app.nodes.validation | Validation Warnings: ['High cell missingness detected (35.0% missing).', 'Extremely small dataset size (8 rows). Statistical analyses may be unviable.']
+2026-07-26 20:30:20,589 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 8 rows and 5 columns.
+2026-07-26 20:30:20,594 | INFO | app.nodes.cleaning | Filled 3 missing values in string column 'customer' with 'Unknown'.
+2026-07-26 20:30:20,596 | INFO | app.nodes.cleaning | Filled 3 missing values in numeric column 'amount' with median (175.25).
+2026-07-26 20:30:20,597 | INFO | app.nodes.cleaning | Filled 3 missing values in string column 'region' with 'Unknown'.
+2026-07-26 20:30:20,600 | INFO | app.nodes.cleaning | Filled 5 missing values in string column 'notes' with 'Unknown'.
+2026-07-26 20:30:20,602 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 8 -> 8. Columns converted: 0.
+2026-07-26 20:30:20,609 | INFO | app.nodes.profiling | Profiling Node started — 8 rows, 5 columns
+2026-07-26 20:30:20,614 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['order_id']
+2026-07-26 20:30:20,628 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 3 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-26 20:30:20,635 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:30:23,079 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:30:23,093 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 3 charts
+2026-07-26 20:30:23,114 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-26 20:30:23,134 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-26 20:30:23,137 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-26 20:30:23,142 | WARNING | app.nodes.visualization | Plan specified only 3 chart(s) — supplementing with auto-generated charts. This is a Visualization Node fallback, not a Planning Agent decision; tagging auto-generated charts.
+2026-07-26 20:30:23,447 | INFO | app.nodes.visualization | Rendered chart [1]: pareto_bar -> outputs\charts\chart_1_pareto_bar.png
+2026-07-26 20:30:23,802 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-26 20:30:24,304 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-26 20:30:24,644 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-26 20:30:25,059 | INFO | app.nodes.visualization | Rendered chart [5]: stacked_bar -> outputs\charts\chart_5_stacked_bar.png
+2026-07-26 20:30:25,515 | INFO | app.nodes.visualization | Rendered chart [6]: quantile_hist -> outputs\charts\chart_6_quantile_hist.png
+2026-07-26 20:30:25,924 | INFO | app.nodes.visualization | Rendered chart [7]: correlation_heatmap -> outputs\charts\chart_7_correlation_heatmap.png
+2026-07-26 20:30:25,926 | INFO | app.nodes.visualization | Visualization Node completed — 7 generated, 0 failed.
+2026-07-26 20:30:27,378 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:31,208 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-26 20:30:32,649 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:32,683 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 1 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99999, Requested 1876. Please try again in 27m0s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:34,525 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:34,539 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 2 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99997, Requested 2427. Please try again in 34m54.336s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:37,783 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:37,794 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 3 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99993, Requested 2151. Please try again in 30m52.416s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:37,795 | ERROR | app.node_wrapper | Node 'narrative_agent' failed: NarrativeAgentError: Narrative Agent failed after retries: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99993, Requested 2151. Please try again in 30m52.416s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-26 20:30:37,820 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/timeseries_sample.csv (Extension: .csv)
+2026-07-26 20:30:37,842 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-26 20:30:37,845 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-26 20:30:37,846 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 12 rows x 3 columns.
+2026-07-26 20:30:37,849 | INFO | app.nodes.validation | Validation Node started — 12 rows, 3 columns
+2026-07-26 20:30:37,854 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-26 20:30:37,858 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 12 rows and 3 columns.
+2026-07-26 20:30:37,862 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 12 -> 12. Columns converted: 0.
+2026-07-26 20:30:37,866 | INFO | app.nodes.profiling | Profiling Node started — 12 rows, 3 columns
+2026-07-26 20:30:37,877 | INFO | app.nodes.profiling | Profiling complete — Analyzed 2 numeric, 0 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-26 20:30:37,882 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-26 20:30:39,285 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:41,051 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:44,309 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-26 20:30:44,320 | ERROR | app.node_wrapper | Node 'planning_agent' failed: PlanningAgentError: Planning Agent failed after 3 attempts. Last error: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99985, Requested 1751. Please try again in 24m59.904s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 01:39:34,020 | INFO | app.graph | LangSmith tracing ENABLED — project: 'autoinsight'
+2026-07-27 01:39:34,887 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/Sales-Export_2019-2020.csv (Extension: .csv)
+2026-07-27 01:39:34,926 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-27 01:39:35,250 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-27 01:39:35,253 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 1000 rows x 10 columns.
+2026-07-27 01:39:35,352 | INFO | app.nodes.validation | Validation Node started — 1000 rows, 10 columns
+2026-07-27 01:39:35,375 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-27 01:39:35,513 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 1000 rows and 10 columns.
+2026-07-27 01:39:35,567 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 1000 -> 1000. Columns converted: 0.
+2026-07-27 01:39:35,770 | INFO | app.nodes.profiling | Profiling Node started — 1000 rows, 10 columns
+2026-07-27 01:39:35,828 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 8 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-27 01:39:36,066 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-27 01:39:42,485 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:39:42,528 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 6 charts
+2026-07-27 01:39:42,865 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-27 01:39:42,873 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-27 01:39:42,920 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-27 01:39:43,138 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-27 01:39:43,641 | INFO | app.nodes.visualization | Rendered chart [1]: line -> outputs\charts\chart_1_line.png
+2026-07-27 01:39:44,136 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-27 01:39:44,565 | INFO | app.nodes.visualization | Rendered chart [3]: pareto_bar -> outputs\charts\chart_3_pareto_bar.png
+2026-07-27 01:39:44,819 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-27 01:39:45,255 | INFO | app.nodes.visualization | Rendered chart [5]: pareto_bar -> outputs\charts\chart_5_pareto_bar.png
+2026-07-27 01:39:45,670 | INFO | app.nodes.visualization | Rendered chart [6]: pareto_bar -> outputs\charts\chart_6_pareto_bar.png
+2026-07-27 01:39:45,671 | INFO | app.nodes.visualization | Visualization Node completed — 6 generated, 0 failed.
+2026-07-27 01:39:49,253 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:39:53,939 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:39:53,954 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-27 01:40:43,765 | WARNING | langsmith.client | Failed to multipart ingest runs: Connection error caused failure to POST https://api.smith.langchain.com/runs/multipart in LangSmith API. Please confirm your internet connection. ConnectionError(MaxRetryError("HTTPSConnectionPool(host='api.smith.langchain.com', port=443): Max retries exceeded with url: /runs/multipart (Caused by ProtocolError('Connection aborted.', TimeoutError('The write operation timed out')))"))
+Content-Length: 2380059
+API Key: lsv2_********************************************4ftrace=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59,id=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59; trace=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59,id=019fa027-8ee6-75f2-8e45-1cd8a26b7939; trace=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59,id=019fa027-908e-70e3-b7e2-3f0e6944147f; trace=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59,id=019fa027-9125-7fe2-9137-5f2be387b65b; trace=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59,id=019fa027-920b-7bb0-b7db-70cdabfdc791; trace=019fa027-8dcc-7d53-a4b0-ed0ef51f3e59,id=019fa027-9335-72e2-968a-e3bc72c3ed79
+2026-07-27 01:41:08,086 | INFO | app.graph | LangSmith tracing ENABLED — project: 'autoinsight'
+2026-07-27 01:41:08,262 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/survey_sample.csv (Extension: .csv)
+2026-07-27 01:41:08,266 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-27 01:41:08,270 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 8 rows x 6 columns.
+2026-07-27 01:41:08,276 | INFO | app.nodes.validation | Validation Node started — 8 rows, 6 columns
+2026-07-27 01:41:08,290 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-27 01:41:08,291 | WARNING | app.nodes.validation | Validation Warnings: ['Extremely small dataset size (8 rows). Statistical analyses may be unviable.']
+2026-07-27 01:41:08,296 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 8 rows and 6 columns.
+2026-07-27 01:41:08,312 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 8 -> 8. Columns converted: 0.
+2026-07-27 01:41:08,316 | INFO | app.nodes.profiling | Profiling Node started — 8 rows, 6 columns
+2026-07-27 01:41:08,334 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 5 categorical, 0 datetime column(s), and excluded 0 identifier column(s).
+2026-07-27 01:41:08,343 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-27 01:41:12,170 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:41:12,317 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 4 analyses and 4 charts
+2026-07-27 01:41:12,333 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-27 01:41:12,351 | INFO | app.nodes.statistics | Statistics Node completed — produced 4 analyses (0 unsupported).
+2026-07-27 01:41:12,352 | WARNING | app.nodes.visualization | 'visualizations' key missing from state — defaulting to empty chart list.
+2026-07-27 01:41:12,496 | WARNING | matplotlib.font_manager | findfont: Failed to find font weight medium, now using 400.
+2026-07-27 01:41:12,834 | INFO | app.nodes.visualization | Rendered chart [1]: pareto_bar -> outputs\charts\chart_1_pareto_bar.png
+2026-07-27 01:41:13,092 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-27 01:41:13,486 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-27 01:41:13,724 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-27 01:41:13,725 | INFO | app.nodes.visualization | Visualization Node completed — 4 generated, 0 failed.
+2026-07-27 01:41:15,963 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:41:19,340 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:41:19,348 | INFO | app.nodes.narrative_agent | Narrative Agent completed on attempt 1
+2026-07-27 01:41:22,110 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:41:22,136 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-27 01:41:24,876 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:41:24,890 | INFO | app.nodes.planning_agent | Planning Agent Node completed — produced plan with 5 analyses and 4 charts
+2026-07-27 01:41:24,941 | INFO | app.nodes.visualization | Executing Visualization Node...
+2026-07-27 01:41:24,959 | INFO | app.nodes.statistics | Statistics Node completed — produced 5 analyses (0 unsupported).
+2026-07-27 01:41:25,518 | INFO | app.nodes.visualization | Rendered chart [1]: pareto_bar -> outputs\charts\chart_1_pareto_bar.png
+2026-07-27 01:41:25,999 | INFO | app.nodes.visualization | Rendered chart [2]: pareto_bar -> outputs\charts\chart_2_pareto_bar.png
+2026-07-27 01:41:26,605 | INFO | app.nodes.visualization | Rendered chart [3]: quantile_hist -> outputs\charts\chart_3_quantile_hist.png
+2026-07-27 01:41:26,985 | INFO | app.nodes.visualization | Rendered chart [4]: pareto_bar -> outputs\charts\chart_4_pareto_bar.png
+2026-07-27 01:41:26,985 | INFO | app.nodes.visualization | Visualization Node completed — 8 generated, 0 failed.
+2026-07-27 01:41:30,500 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-27 01:41:32,002 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:32,039 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 1 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99172, Requested 2461. Please try again in 23m30.912s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 01:41:33,832 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:33,843 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 2 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99170, Requested 2461. Please try again in 23m29.184s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 01:41:37,359 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:37,364 | WARNING | app.nodes.narrative_agent | Narrative Agent attempt 3 failed validation: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99166, Requested 2461. Please try again in 23m25.728s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 01:41:37,364 | ERROR | app.node_wrapper | Node 'narrative_agent' failed: NarrativeAgentError: Narrative Agent failed after retries: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99166, Requested 2461. Please try again in 23m25.728s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 01:41:37,386 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/heavy_nulls_sample.csv (Extension: .csv)
+2026-07-27 01:41:37,392 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-27 01:41:37,395 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 8 rows x 5 columns.
+2026-07-27 01:41:37,400 | INFO | app.nodes.validation | Validation Node started — 8 rows, 5 columns
+2026-07-27 01:41:37,408 | INFO | app.nodes.validation | Validation complete — Health Score: 75.5/100 (Grade B)
+2026-07-27 01:41:37,410 | WARNING | app.nodes.validation | Validation Warnings: ['High cell missingness detected (35.0% missing).', 'Extremely small dataset size (8 rows). Statistical analyses may be unviable.']
+2026-07-27 01:41:37,416 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 8 rows and 5 columns.
+2026-07-27 01:41:37,428 | INFO | app.nodes.cleaning | Filled 3 missing values in string column 'customer' with 'Unknown'.
+2026-07-27 01:41:37,431 | INFO | app.nodes.cleaning | Filled 3 missing values in numeric column 'amount' with median (175.25).
+2026-07-27 01:41:37,432 | INFO | app.nodes.cleaning | Filled 3 missing values in string column 'region' with 'Unknown'.
+2026-07-27 01:41:37,433 | INFO | app.nodes.cleaning | Filled 5 missing values in string column 'notes' with 'Unknown'.
+2026-07-27 01:41:37,435 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 8 -> 8. Columns converted: 0.
+2026-07-27 01:41:37,442 | INFO | app.nodes.profiling | Profiling Node started — 8 rows, 5 columns
+2026-07-27 01:41:37,447 | INFO | app.nodes.profiling | Excluded identifier columns from numeric analysis: ['order_id']
+2026-07-27 01:41:37,460 | INFO | app.nodes.profiling | Profiling complete — Analyzed 1 numeric, 3 categorical, 0 datetime column(s), and excluded 1 identifier column(s).
+2026-07-27 01:41:37,464 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-27 01:41:38,746 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:40,565 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:44,001 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:44,017 | ERROR | app.node_wrapper | Node 'planning_agent' failed: PlanningAgentError: Planning Agent failed after 3 attempts. Last error: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99158, Requested 1703. Please try again in 12m23.904s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 01:41:44,066 | INFO | app.nodes.file_loader | Attempting to load file: sample_data/timeseries_sample.csv (Extension: .csv)
+2026-07-27 01:41:44,083 | INFO | app.nodes.file_loader | Successfully read CSV using 'utf-8' encoding.
+2026-07-27 01:41:44,089 | INFO | app.nodes.file_loader | Converted column 'date' to datetime (valid ratio: 100.00%).
+2026-07-27 01:41:44,090 | INFO | app.nodes.file_loader | File successfully loaded into DataFrame. Dimensions: 12 rows x 3 columns.
+2026-07-27 01:41:44,095 | INFO | app.nodes.validation | Validation Node started — 12 rows, 3 columns
+2026-07-27 01:41:44,102 | INFO | app.nodes.validation | Validation complete — Health Score: 100.0/100 (Grade A)
+2026-07-27 01:41:44,111 | INFO | app.nodes.cleaning | Starting data cleaning on dataset with 12 rows and 3 columns.
+2026-07-27 01:41:44,116 | INFO | app.nodes.cleaning | Data cleaning completed successfully. Rows: 12 -> 12. Columns converted: 0.
+2026-07-27 01:41:44,129 | INFO | app.nodes.profiling | Profiling Node started — 12 rows, 3 columns
+2026-07-27 01:41:44,148 | INFO | app.nodes.profiling | Profiling complete — Analyzed 2 numeric, 0 categorical, 1 datetime column(s), and excluded 0 identifier column(s).
+2026-07-27 01:41:44,157 | INFO | app.nodes.planning_agent | Planning Agent Node started
+2026-07-27 01:41:45,374 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:47,477 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:50,795 | INFO | httpx | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2026-07-27 01:41:50,801 | ERROR | app.node_wrapper | Node 'planning_agent' failed: PlanningAgentError: Planning Agent failed after 3 attempts. Last error: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kxeabscbe1094zj69jz126pw` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99150, Requested 1583. Please try again in 10m33.312s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+2026-07-27 17:22:39,536 | INFO | app.graph | LangSmith tracing ENABLED — project: 'autoinsight'

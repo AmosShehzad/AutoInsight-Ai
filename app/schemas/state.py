@@ -44,3 +44,5 @@ class GraphState(TypedDict, total=False):
 
     # --- Day 9-10: Report Generation Node ---
     report_path: str
+
+    last_missing_analyses: list

@@ -21,6 +21,11 @@ class Config:
     INSIGHT_TEMPERATURE: float = float(os.getenv("AUTOINSIGHT_INSIGHT_TEMP", "0.3"))
     CRITIC_TEMPERATURE: float = float(os.getenv("AUTOINSIGHT_CRITIC_TEMP", "0.1"))
 
+    # --- LangSmith observability ---
+    LANGCHAIN_TRACING_V2: str = os.getenv("LANGCHAIN_TRACING_V2", "false")
+    LANGCHAIN_API_KEY: str = os.getenv("LANGCHAIN_API_KEY", "")
+    LANGCHAIN_PROJECT: str = os.getenv("LANGCHAIN_PROJECT", "autoinsight-ai")
+
     # --- Reflection loop ---
     MAX_REVISIONS: int = int(os.getenv("AUTOINSIGHT_MAX_REVISIONS", "2"))
     MAX_LLM_RETRIES: int = int(os.getenv("AUTOINSIGHT_MAX_LLM_RETRIES", "2"))

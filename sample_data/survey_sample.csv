@@ -1,0 +1,9 @@
+respondent_id,age_group,satisfaction,recommend_likelihood,department,comments
+R001,25-34,Very Satisfied,9,Sales,Great service
+R002,35-44,Satisfied,7,Support,Could be faster
+R003,18-24,Neutral,5,Sales,It was okay
+R004,45-54,Very Satisfied,10,Marketing,Excellent!
+R005,25-34,Dissatisfied,3,Support,Too slow
+R006,35-44,Satisfied,8,Sales,Good experience
+R007,18-24,Very Dissatisfied,2,Marketing,Bad experience
+R008,45-54,Neutral,6,Support,Average

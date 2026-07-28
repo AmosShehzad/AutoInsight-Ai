@@ -169,7 +169,7 @@ def _build_chain(temperature: float = None):
     Uses config.LLM_MODEL and config.PLANNING_TEMPERATURE by default.
     """
     temp = temperature if temperature is not None else config.PLANNING_TEMPERATURE
-    llm = get_llm(model=config.LLM_MODEL, temperature=temp)
+    llm = get_llm(model=config.LLM_MODEL, temperature=temp, tags=["planning_agent"])
     structured_llm = llm.with_structured_output(AnalysisPlan, method="json_mode")
     return PLANNING_PROMPT | structured_llm
 

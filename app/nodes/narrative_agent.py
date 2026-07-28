@@ -122,7 +122,7 @@ def _repair_narrative_json(raw: dict) -> dict:
 
 def _build_raw_chain(temperature: float = 0.3):
     """Returns the LLM chain without structured output to allow manual JSON repair."""
-    llm = get_llm(temperature=temperature)
+    llm = get_llm(temperature=temperature, tags=["narrative_agent"])
     return NARRATIVE_PROMPT | llm
 
 

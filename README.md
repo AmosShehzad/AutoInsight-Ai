@@ -5,8 +5,8 @@ and an executive-ready PDF report — built by a multi-agent LangGraph system
 that plans its own analysis, critiques its own output, and revises when its
 own standards aren't met.
 
-**Live demo:** [your Hugging Face Space URL here]
-**Video walkthrough:** [your demo video link here]
+**Live demo:** https://autoinsight-ai-dkob.onrender.com/
+**Video walkthrough:** Uploaded soon
 
 ---
 

@@ -49,7 +49,7 @@ File Loader, Validation, Cleaning, Profiling, Statistics, Visualization, Report 
 ## Running Locally
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/AmosShehzad/AutoInsight-Ai
 cd autoinsight-ai
 python -m venv venv
 venv\Scripts\activate          # Windows

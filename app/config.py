@@ -13,7 +13,7 @@ load_dotenv()
 class Config:
     # --- LLM settings ---
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    LLM_MODEL: str = os.getenv("AUTOINSIGHT_LLM_MODEL", "llama-3.3-70b-versatile")
+    LLM_MODEL: str = os.getenv("AUTOINSIGHT_LLM_MODEL", "openai/gpt-oss-20b")
 
     # Per-agent temperature — different agents want different creativity levels,
     # but the MODEL should be consistent unless explicitly overridden.
